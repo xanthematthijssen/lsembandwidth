@@ -1,3 +1,17 @@
+#' Creates list of dataset from dataset
+#'
+#' Creates list of datasets for K-fold crossvalidaton
+#' labelled as training and test for cross-validation
+#'
+#' @param data dataframe
+#' @param K numeric
+#'
+#' @return list of training and test sets
+#' @export
+#'
+#' @examples
+#' create_crossvaldata(rbind(rnorm(10), runif(10)), 2)
+#'
 create_crossvaldata <- function(data, K){
   row_vector <- 1:nrow(data)
   row_vector <- sample(row_vector)

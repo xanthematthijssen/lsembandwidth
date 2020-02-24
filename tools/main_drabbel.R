@@ -3,6 +3,7 @@ rm(list = ls())
 
 load_all()
 check()
+document()
 ##### testing #####
 data <- cbind(rnorm(100), runif(100))
 create_crossvaldata(data=data, K = 5)
