@@ -1,10 +1,15 @@
 library(devtools)
+library(testthat)
+
 rm(list = ls())
 
 load_all()
 check()
 document()
 ##### testing #####
+devtools::test()
+devtools::test_coverage()
+
 data <- cbind(rnorm(100), runif(100))
 create_crossvaldata(data=data, K = 5)
 
