@@ -1,5 +1,7 @@
 library(devtools)
 library(testthat)
+library(sirt)
+sessionInfo()
 
 rm(list = ls())
 
