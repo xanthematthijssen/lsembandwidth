@@ -1,7 +1,7 @@
 #' Fits LSEM model on training set with predefined bandwidth
 #'
 #' @param data training dataset
-#' @param model Specified SEM in lavaan
+#' @param lavmodel Specified SEM in lavaan
 #' @param bandwidth Bandwidth factor
 #' @param moderator Variable name of the moderator
 #' @param moderator.grid Focal points at which the LSEM should be evaluated.
@@ -10,8 +10,10 @@
 #' @export
 #'
 #' @examples
+#'
+#'
 train_lsemmodel <- function(data,
-                            model,
+                            lavmodel,
                             bandwidth,
                             moderator,
                             moderator.grid,
@@ -20,7 +22,7 @@ train_lsemmodel <- function(data,
     data = data,
     moderator = moderator,
     moderator.grid = moderator.grid,
-    lavmodel = model,
+    lavmodel = lavmodel,
     h = bandwidth,
     ...
   )

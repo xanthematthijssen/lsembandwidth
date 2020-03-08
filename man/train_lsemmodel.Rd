@@ -4,12 +4,12 @@
 \alias{train_lsemmodel}
 \title{Fits LSEM model on training set with predefined bandwidth}
 \usage{
-train_lsemmodel(data, model, bandwidth, moderator, moderator.grid, ...)
+train_lsemmodel(data, lavmodel, bandwidth, moderator, moderator.grid, ...)
 }
 \arguments{
 \item{data}{training dataset}
 
-\item{model}{Specified SEM in lavaan}
+\item{lavmodel}{Specified SEM in lavaan}
 
 \item{bandwidth}{Bandwidth factor}
 
@@ -24,4 +24,8 @@ fitted LSEM model
 }
 \description{
 Fits LSEM model on training set with predefined bandwidth
+}
+\examples{
+
+
 }
