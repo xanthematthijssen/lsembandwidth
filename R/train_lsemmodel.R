@@ -11,6 +11,16 @@
 #'
 #' @examples
 #'
+#'data(simplefactordata)
+#'
+#'lavmodel <- "
+#'         F=~ indicator1 + indicator2 + indicator3 + indicator4
+#'         F ~~ 1*F"
+#'
+#' train_lsemmodel(simplefactordata,moderator="moderator",moderator.grid=c(1:9)/10,
+#' lavmodel=lavmodel, bandwidth=2)
+#'
+#'
 #'
 train_lsemmodel <- function(data,
                             lavmodel,
