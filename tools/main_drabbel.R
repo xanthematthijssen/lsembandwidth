@@ -17,12 +17,12 @@ source("tools/first_simulation.R")
 
 
 #### lsem model ####
-lavmodel1 <- "
+lavmodel <- "
         F=~ indicator1 + indicator2 + indicator3 + indicator4
         F ~~ 1*F"
 model <- train_lsemmodel( df, moderator="moderator",
                              moderator.grid=c(1:9)/10,
-                             lavmodel=lavmodel1, bandwidth =2)
+                             lavmodel=lavmodel, bandwidth =2)
 summary(model)
 plot(model, parindex=1:4, ask = F)
 B <- 50
@@ -36,3 +36,6 @@ use_mit_license("Xanthe Matthijssen")
 
 
 
+test_bandwidths(data = simplefactordata, lavmodel = lavmodel,
+                bandwidthvector = c(1,2), moderator = "moderator",
+                moderator.grid = moderator.grid)

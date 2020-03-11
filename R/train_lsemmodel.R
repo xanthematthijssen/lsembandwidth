@@ -34,6 +34,7 @@ train_lsemmodel <- function(data,
     moderator.grid = moderator.grid,
     lavmodel = lavmodel,
     h = bandwidth,
+    verbose = FALSE,
     ...
   )
   return(model)
