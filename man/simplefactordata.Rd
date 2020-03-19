@@ -4,7 +4,8 @@
 \name{simplefactordata}
 \alias{simplefactordata}
 \title{A simple dataset for a moderated 4 indicator factor model.}
-\format{A data frame with 1000 rows and 7 variables:
+\format{
+A data frame with 1000 rows and 7 variables:
 \describe{
   \item{patnr}{price, in US dollars}
   \item{true_latent}{true value of latent used in simulation}
@@ -14,7 +15,8 @@
   \item{indicator3}{rnorm with sd of 1 around true_latent*moderator}
   \item{indicator4}{rnorm with sd of 1 around true_latent*moderator}
   ...
-}}
+}
+}
 \usage{
 simplefactordata
 }
