@@ -11,6 +11,8 @@ test_bandwidths(
   moderator,
   moderator.grid,
   statistic = "AIC",
+  K = 10,
+  kernel = "gaussian",
   ...
 )
 }
@@ -27,10 +29,14 @@ test_bandwidths(
 
 \item{statistic}{can be AIC or CV (cross-validated likelihood)}
 
+\item{K}{number of folds for cross-validation, defaults to 10}
+
+\item{kernel}{used kernel to weight observations}
+
 \item{...}{further arguments to be passed to lavaan::sem or lavaan::lavaan.}
 }
 \value{
-dataframe with fit measures for every bandwidht
+dataframe with fit measures for every bandwidth
 }
 \description{
 Fits LSEM models with predifined bandwidths and measures fit

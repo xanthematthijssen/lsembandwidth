@@ -6,9 +6,13 @@
 #' @param moderator Variable name of the moderator
 #' @param moderator.grid Focal points at which the LSEM should be evaluated.
 #' @param statistic can be AIC or CV (cross-validated likelihood)
+#' @param K number of folds for cross-validation, defaults to 10
+#' @param kernel used kernel to weight observations
 #' @param ... further arguments to be passed to lavaan::sem or lavaan::lavaan.
 #'
-#' @return dataframe with fit measures for every bandwidht
+#' @return dataframe with fit measures for every bandwidth
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
 #' @export
 #'
 #' @examples
@@ -28,10 +32,12 @@ test_bandwidths <- function(data,
                             moderator,
                             moderator.grid,
                             statistic = "AIC",
+                            K = 10,
+                            kernel = "gaussian",
                             ...) {
   if (statistic == "AIC") {
     statistic_vector <-
-      sapply(bandwidthvector,
+      bandwidthvector %>% purrr::map_dbl(
              function(x) {
                train_lsemmodel(
                  data = data,
@@ -40,16 +46,30 @@ test_bandwidths <- function(data,
                  moderator = "moderator",
                  moderator.grid = moderator.grid,
                  fit_measures = "aic",
-                 est_joint = TRUE,
-
+                 kernel = kernel,
                )$fitstats_joint$value
              },
              ...)
+    df <- data.frame(statistic = statistic,
+                     bandwidth = bandwidthvector,
+                     value = statistic_vector)
   }
 
-  df <- data.frame(statistic = statistic,
-                   bandwidth = bandwidthvector,
-                   value = statistic_vector)
+  if (statistic == "CV") {
+   df_likelihood <- purrr::map_dfr(purrr::cross2(create_crossvaldata(data = data, K = K),
+                                          bandwidthvector),
+              CV_model, moderator = moderator, moderator.grid = moderator.grid,
+                       lavmodel = lavmodel, kernel = kernel, ...)
+
+   print(df_likelihood)
+
+   df <-
+     df_likelihood %>%
+     dplyr::group_by(.data$statistic, .data$bandwidth) %>%
+     dplyr::summarise(value = sum(.data$loglikelihood))
+  }
+
+
 
   return(df)
 }

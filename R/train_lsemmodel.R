@@ -35,6 +35,7 @@ train_lsemmodel <- function(data,
     lavmodel = lavmodel,
     h = bandwidth,
     verbose = FALSE,
+    est_joint = TRUE,
     ...
   )
   return(model)
