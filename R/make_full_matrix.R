@@ -1,3 +1,6 @@
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+
 make_full_matrix <- function(parameter_df, variable_vector){
 
   all_df <- data.frame(sample_mods = -1,
@@ -13,7 +16,7 @@ make_full_matrix <- function(parameter_df, variable_vector){
     duplicated(parameter_df[,c("rhs","lhs")]) |
     duplicated(parameter_df[,c("rhs","lhs")], fromLast = TRUE)
 
-  parameter_df <- dplyr::filter(parameter_df,!(duplicated & par == "test"))
+  parameter_df <- dplyr::filter(parameter_df,!(duplicated & .data$par == "test"))
   parameter_df <- dplyr::select(parameter_df,
                                 -.data$op,
                                 -.data$par,-.data$sample_mods,

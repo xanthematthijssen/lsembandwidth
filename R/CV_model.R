@@ -9,6 +9,7 @@
 #'
 #' @return dataframe of bandwidths and likelihoods
 #' @export
+#' @importFrom rlang .data
 #'
 #' @examples
 #'data(simplefactordata)
@@ -46,13 +47,17 @@ CV_model <- function(list, moderator, moderator.grid, lavmodel, kernel, ...){
 
   unique_moderators <- unique(test_data[,moderator])
 
-  unique_moderators_parameters <- calc_pars_permod(moderators = unique_moderators,
-                                                   kernel = kernel,
-                                                   bandwidth = bandwidth,
-                                                   parameters = df_fitted_parameters)
+  df_pars_permod <- calc_pars_permod(
+    moderators = unique_moderators,
+    kernel = kernel,
+    bandwidth = bandwidth,
+    parameters = df_fitted_parameters
+  )
 
-
-
+  RAM_list <- df_pars_permod %>%
+    dplyr::group_by(.data$sample_mods) %>%
+    dplyr::group_split() %>%
+    purrr::map(calculate_RAM)
 
 
   loglikelihood <- 1
