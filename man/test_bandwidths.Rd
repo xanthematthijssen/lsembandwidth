@@ -13,6 +13,7 @@ test_bandwidths(
   statistic = "AIC",
   K = 10,
   kernel = "gaussian",
+  digits = 6,
   ...
 )
 }
@@ -32,6 +33,10 @@ test_bandwidths(
 \item{K}{number of folds for cross-validation, defaults to 10}
 
 \item{kernel}{used kernel to weight observations}
+
+\item{digits}{number of digits test_data moderator is rounded to,
+can be lowered to increase speed crossvalidation
+defaults to 6}
 
 \item{...}{further arguments to be passed to lavaan::sem or lavaan::lavaan.}
 }

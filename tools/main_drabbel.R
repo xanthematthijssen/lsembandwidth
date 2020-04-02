@@ -48,5 +48,40 @@ test_bandwidths(data = simplefactordata, lavmodel = lavmodel,
 
 
 test_bandwidths(data = simplefactordata, lavmodel = lavmodel,
-                bandwidthvector = c(1,2,3), moderator = "moderator",
-                moderator.grid = moderator.grid, statistic  = "CV")
+                bandwidthvector = c(0.1,2,3), moderator = "moderator",
+                moderator.grid = moderator.grid, statistic  = "CV", K=3,
+                digits = 2)
+
+
+data("simplefactordata")
+moderator.grid <- 1:9/10
+lavmodel <- "
+        F=~ indicator1 + indicator2 + indicator3 + indicator4
+        F ~~ 1*F"
+train_data = simplefactordata[1:200,]
+test_data = simplefactordata[201:400,]
+bandwidth = 1
+moderator = "moderator"
+df_fitted_parameters <- train_lsemmodel(
+  data = train_data,
+  lavmodel = lavmodel,
+  bandwidth = bandwidth,
+  moderator = "moderator",
+  moderator.grid = moderator.grid)$parameters
+
+unique_moderators <- unique(test_data[,moderator])
+
+df_pars_permod <- calc_pars_permod(
+  moderators = unique_moderators,
+  kernel = "gaussian",
+  bandwidth = bandwidth,
+  parameters = df_fitted_parameters
+)
+
+RAM_list <- df_pars_permod %>%
+  dplyr::group_by(.data$sample_mods) %>%
+  dplyr::group_split() %>%
+  purrr::map(calculate_RAM)
+
+
+

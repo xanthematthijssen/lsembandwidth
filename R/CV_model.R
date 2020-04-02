@@ -5,6 +5,7 @@
 #' @param moderator.grid grid for moderator values
 #' @param lavmodel lavaan model
 #' @param kernel kernel used
+#' @param digits number of digits test_data moderator is rounded to, can be lowerd to increase speed
 #' @param ... further arguments to be passed to lavaan::sem or lavaan::lavaan
 #'
 #' @return dataframe of bandwidths and likelihoods
@@ -30,7 +31,7 @@
 #'        lavmodel = lavmodel, kernel ="gaussian")
 #'
 #'
-CV_model <- function(list, moderator, moderator.grid, lavmodel, kernel, ...){
+CV_model <- function(list, moderator, moderator.grid, lavmodel, kernel, digits, ...){
 
   bandwidth <- list[[2]]
   train_data <- list[[1]][["training"]]
@@ -44,6 +45,9 @@ CV_model <- function(list, moderator, moderator.grid, lavmodel, kernel, ...){
     moderator.grid = moderator.grid,
     ...
   )$parameters
+
+  test_data[,moderator] <- round(test_data[,moderator], digits= digits)
+
 
   unique_moderators <- unique(test_data[,moderator])
 
@@ -59,12 +63,13 @@ CV_model <- function(list, moderator, moderator.grid, lavmodel, kernel, ...){
     dplyr::group_split() %>%
     purrr::map(calculate_RAM)
 
+  loglikelihoods <- calculate_likelihoods(test_data, RAM_list, moderator)
 
-  loglikelihood <- 1
+  loglikelihood_sum <- sum(loglikelihoods)
 
   return(data.frame(
     statistic = "CV",
     bandwidth = bandwidth,
-    loglikelihood = loglikelihood
+    loglikelihood = loglikelihood_sum
   ))
 }

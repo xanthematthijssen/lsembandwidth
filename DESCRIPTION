@@ -17,7 +17,8 @@ Imports:
   purrr (>= 0.3.3),
   dplyr (>= 0.8.5),
   rlang (>= 0.4.5),
-  tidyr (>= 1.0.2)
+  tidyr (>= 1.0.2), 
+  mvtnorm (>= 1.1.0),
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.0

@@ -8,6 +8,9 @@
 #' @param statistic can be AIC or CV (cross-validated likelihood)
 #' @param K number of folds for cross-validation, defaults to 10
 #' @param kernel used kernel to weight observations
+#' @param digits number of digits test_data moderator is rounded to,
+#' can be lowered to increase speed crossvalidation
+#' defaults to 6
 #' @param ... further arguments to be passed to lavaan::sem or lavaan::lavaan.
 #'
 #' @return dataframe with fit measures for every bandwidth
@@ -34,6 +37,7 @@ test_bandwidths <- function(data,
                             statistic = "AIC",
                             K = 10,
                             kernel = "gaussian",
+                            digits = 6,
                             ...) {
   if (statistic == "AIC") {
     statistic_vector <-
@@ -59,7 +63,7 @@ test_bandwidths <- function(data,
    df_likelihood <- purrr::map_dfr(purrr::cross2(create_crossvaldata(data = data, K = K),
                                           bandwidthvector),
               CV_model, moderator = moderator, moderator.grid = moderator.grid,
-                       lavmodel = lavmodel, kernel = kernel, ...)
+                       lavmodel = lavmodel, kernel = kernel, digits = digits, ...)
 
    print(df_likelihood)
 
@@ -68,9 +72,6 @@ test_bandwidths <- function(data,
      dplyr::group_by(.data$statistic, .data$bandwidth) %>%
      dplyr::summarise(value = sum(.data$loglikelihood))
   }
-
-
-
   return(df)
 }
 
