@@ -2,7 +2,7 @@
 % Please edit documentation in R/create_crossvaldata.R
 \name{create_crossvaldata}
 \alias{create_crossvaldata}
-\title{Creates list of dataset from dataset}
+\title{Creates list of datasets from a dataset}
 \usage{
 create_crossvaldata(data, K)
 }

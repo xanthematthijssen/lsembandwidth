@@ -57,7 +57,8 @@ data("simplefactordata")
 moderator.grid <- 1:9/10
 lavmodel <- "
         F=~ indicator1 + indicator2 + indicator3 + indicator4
-        F ~~ 1*F"
+        F ~~ 1*F
+        indicator1 ~ indicator2"
 train_data = simplefactordata[1:200,]
 test_data = simplefactordata[201:400,]
 bandwidth = 1
@@ -77,6 +78,8 @@ df_pars_permod <- calc_pars_permod(
   bandwidth = bandwidth,
   parameters = df_fitted_parameters
 )
+
+df_pars_onemod <- df_pars_permod[df_pars_permod$sample_mods == df_pars_permod$sample_mods[1],]
 
 RAM_list <- df_pars_permod %>%
   dplyr::group_by(.data$sample_mods) %>%

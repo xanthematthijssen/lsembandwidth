@@ -41,38 +41,47 @@ test_bandwidths <- function(data,
                             ...) {
   if (statistic == "AIC") {
     statistic_vector <-
-      bandwidthvector %>% purrr::map_dbl(
-             function(x) {
-               train_lsemmodel(
-                 data = data,
-                 lavmodel = lavmodel,
-                 bandwidth = x,
-                 moderator = "moderator",
-                 moderator.grid = moderator.grid,
-                 fit_measures = "aic",
-                 kernel = kernel,
-               )$fitstats_joint$value
-             },
-             ...)
-    df <- data.frame(statistic = statistic,
-                     bandwidth = bandwidthvector,
-                     value = statistic_vector)
+      bandwidthvector %>% purrr::map_dbl(function(x) {
+        train_lsemmodel(
+          data = data,
+          lavmodel = lavmodel,
+          bandwidth = x,
+          moderator = "moderator",
+          moderator.grid = moderator.grid,
+          fit_measures = "aic",
+          kernel = kernel,
+        )$fitstats_joint$value
+      },
+      ...)
+
+    df_statistics <- data.frame(statistic = statistic,
+                                bandwidth = bandwidthvector,
+                                value = statistic_vector)
   }
 
   if (statistic == "CV") {
-   df_likelihood <- purrr::map_dfr(purrr::cross2(create_crossvaldata(data = data, K = K),
-                                          bandwidthvector),
-              CV_model, moderator = moderator, moderator.grid = moderator.grid,
-                       lavmodel = lavmodel, kernel = kernel, digits = digits, ...)
+    # calculate loglikelihoods for every test/training combination for every
+    # bandwidht
+    df_loglikelihood <-
+      purrr::map_dfr(
+        purrr::cross2(create_crossvaldata(data = data, K = K),
+                      bandwidthvector),
+        CV_model,
+        moderator = moderator,
+        moderator.grid = moderator.grid,
+        lavmodel = lavmodel,
+        kernel = kernel,
+        digits = digits,
+        ...
+      )
 
-   print(df_likelihood)
+    print(df_loglikelihood)
 
-   df <-
-     df_likelihood %>%
-     dplyr::group_by(.data$statistic, .data$bandwidth) %>%
-     dplyr::summarise(value = sum(.data$loglikelihood))
+    # sum loglikelihoods of cross-validation sets to get statistic per bandwidth
+    df_statistics <-
+      df_loglikelihood %>%
+      dplyr::group_by(.data$statistic, .data$bandwidth) %>%
+      dplyr::summarise(value = sum(.data$loglikelihood))
   }
-  return(df)
+  return(df_statistics)
 }
-
-

@@ -2,7 +2,7 @@
 % Please edit documentation in R/calc_pars_permod.R
 \name{calc_pars_permod}
 \alias{calc_pars_permod}
-\title{Calculates parameters per moderator value}
+\title{Calculates weighted parameters per moderator value}
 \usage{
 calc_pars_permod(moderators, kernel, bandwidth, parameters)
 }
@@ -19,7 +19,7 @@ calc_pars_permod(moderators, kernel, bandwidth, parameters)
 dataframe with parameter values per moderator value
 }
 \description{
-Calculates parameters per moderator value
+Calculates weighted parameters per moderator value
 }
 \examples{
 

@@ -1,4 +1,4 @@
-#' Creates list of dataset from dataset
+#' Creates list of datasets from a dataset
 #'
 #' Creates list of datasets for K-fold crossvalidaton
 #' labelled as training and test for cross-validation

@@ -1,3 +1,12 @@
+#' Function from sirt that calculates kernel weights for certain bandwidth and moderator value
+#'
+#' @param x vector of datapoints to calculate weights
+#' @param x0 moderator value
+#' @param bw bandwidth
+#' @param kernel kernel type, defaults to gaussion
+#'
+#' @return vector of weights
+
 lsem_kernel_weights <- function(x, x0, bw, kernel="gaussian")
 {
   if (kernel=="gaussian"){

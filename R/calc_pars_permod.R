@@ -1,6 +1,6 @@
 
 
-#' Calculates parameters per moderator value
+#' Calculates weighted parameters per moderator value
 #'
 #' @param moderators moderator values for which parameters have to be estimated
 #' @param kernel  kernel
@@ -33,19 +33,24 @@ calc_pars_permod <- function(moderators,
                  kernel,
                  bandwidth,
                  parameters){
-
+  # make dataframe for every combination of moderator value given to the function
+  # and moderator values in the moderator grid (also known as focal points)
+  # sample_mods are moderator values given to the function
+  # fitted_mods are moderator values in the moderator grid
   df_mods <-
     purrr::cross_df(list(
       sample_mods = moderators,
       fitted_mods = unique(parameters$moderator)
     ))
 
+  # calculate weigths for these combinations
   df_mods$weights <-
     lsem_kernel_weights(df_mods$sample_mods,
                         df_mods$fitted_mods,
                         bw = bandwidth,
                         kernel = kernel)
 
+  # merge in parameter values
   df_mods <-
     merge(
       df_mods,
@@ -57,7 +62,7 @@ calc_pars_permod <- function(moderators,
       sort = F
     )
 
-
+  # calculate weighted mean of every parameter for every value of the moderator given to the function
   df_pars_permod <-
     df_mods %>%
     dplyr::group_by(.data$sample_mods, .data$par) %>%

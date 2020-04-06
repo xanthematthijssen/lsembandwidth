@@ -46,23 +46,26 @@ CV_model <- function(list, moderator, moderator.grid, lavmodel, kernel, digits, 
     ...
   )$parameters
 
+  # round moderator values reduce calculations
   test_data[,moderator] <- round(test_data[,moderator], digits= digits)
 
 
   unique_moderators <- unique(test_data[,moderator])
 
+  # calculate estimate parameters for every unique moderator value in the test set
   df_pars_permod <- calc_pars_permod(
     moderators = unique_moderators,
     kernel = kernel,
     bandwidth = bandwidth,
     parameters = df_fitted_parameters
   )
-
+  # calculate RAM matrices for every unique moderator value in the test set
   RAM_list <- df_pars_permod %>%
     dplyr::group_by(.data$sample_mods) %>%
     dplyr::group_split() %>%
     purrr::map(calculate_RAM)
 
+  # calculate loglikelihoods for every observation in the test set
   loglikelihoods <- calculate_likelihoods(test_data, RAM_list, moderator)
 
   loglikelihood_sum <- sum(loglikelihoods)
