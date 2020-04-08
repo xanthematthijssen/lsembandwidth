@@ -11,6 +11,8 @@
 #' @param digits number of digits test_data moderator is rounded to,
 #' can be lowered to increase speed crossvalidation
 #' defaults to 6
+#' @param maxbandwidthdistance the amount of bandwidths from every point in the
+#' moderator grid that a point in the dataset must be present
 #' @param ... further arguments to be passed to lavaan::sem or lavaan::lavaan.
 #'
 #' @return dataframe with fit measures for every bandwidth
@@ -38,7 +40,21 @@ test_bandwidths <- function(data,
                             K = 10,
                             kernel = "gaussian",
                             digits = 6,
+                            maxbandwidthdistance = 2,
                             ...) {
+
+  # if all points in dataset too far from point in moderator grid return error
+  if (max(sapply(moderator.grid, function(x)
+    min(abs((x - data[, moderator]) / min(bandwidthvector)
+    ),
+    na.rm = T))) > maxbandwidthdistance
+  ){
+    cat("datapoints too far away from certain points in moderator grid \n")
+    cat("remove point from moderator grid, increase bandwidth \n")
+    cat("or increase maxbandwidthdisance \n")
+    return("ended with error")
+  }
+
   if (statistic == "AIC") {
     statistic_vector <-
       bandwidthvector %>% purrr::map_dbl(function(x) {

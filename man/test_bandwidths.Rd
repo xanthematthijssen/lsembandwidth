@@ -14,6 +14,7 @@ test_bandwidths(
   K = 10,
   kernel = "gaussian",
   digits = 6,
+  maxbandwidthdistance = 2,
   ...
 )
 }
@@ -37,6 +38,9 @@ test_bandwidths(
 \item{digits}{number of digits test_data moderator is rounded to,
 can be lowered to increase speed crossvalidation
 defaults to 6}
+
+\item{maxbandwidthdistance}{the amount of bandwidths from every point in the
+moderator grid that a point in the dataset must be present}
 
 \item{...}{further arguments to be passed to lavaan::sem or lavaan::lavaan.}
 }
