@@ -3,8 +3,8 @@
 #' @param data dataset for model
 #' @param lavmodel Specified SEM in lavaan
 #' @param bandwidthvector vector of tested bandwidths
-#' @param moderator Variable name of the moderator
-#' @param moderator.grid Focal points at which the LSEM should be evaluated.
+#' @param moderator_name Variable name of the moderator
+#' @param moderator_grid Focal points at which the LSEM should be evaluated.
 #' @param statistic can be AIC or CV (cross-validated likelihood)
 #' @param K number of folds for cross-validation, defaults to 10
 #' @param kernel used kernel to weight observations
@@ -28,14 +28,14 @@
 #'         F=~ indicator1 + indicator2 + indicator3 + indicator4
 #'         F ~~ 1*F"
 #'
-#' test_bandwidths(simplefactordata,moderator="moderator",moderator.grid=c(1:9)/10,
+#' test_bandwidths(simplefactordata,moderator_name="moderator",moderator_grid=c(1:9)/10,
 #' lavmodel=lavmodel, bandwidthvector = c(1,2), statistic = "AIC")
 #'
 test_bandwidths <- function(data,
                             lavmodel,
                             bandwidthvector,
-                            moderator,
-                            moderator.grid,
+                            moderator_name,
+                            moderator_grid,
                             statistic = "AIC",
                             K = 10,
                             kernel = "gaussian",
@@ -44,8 +44,8 @@ test_bandwidths <- function(data,
                             ...) {
 
   # if all points in dataset too far from point in moderator grid return error
-  if (max(sapply(moderator.grid, function(x)
-    min(abs((x - data[, moderator]) / min(bandwidthvector)
+  if (max(sapply(moderator_grid, function(x)
+    min(abs((x - data[, moderator_name]) / min(bandwidthvector)
     ),
     na.rm = T))) > maxbandwidthdistance
   ){
@@ -62,8 +62,8 @@ test_bandwidths <- function(data,
           data = data,
           lavmodel = lavmodel,
           bandwidth = x,
-          moderator = "moderator",
-          moderator.grid = moderator.grid,
+          moderator_name = "moderator",
+          moderator_grid = moderator_grid,
           fit_measures = "aic",
           kernel = kernel,
         )$fitstats_joint$value
@@ -83,8 +83,8 @@ test_bandwidths <- function(data,
         purrr::cross2(create_crossvaldata(data = data, K = K),
                       bandwidthvector),
         CV_model,
-        moderator = moderator,
-        moderator.grid = moderator.grid,
+        moderator_name = moderator_name,
+        moderator_grid = moderator_grid,
         lavmodel = lavmodel,
         kernel = kernel,
         digits = digits,

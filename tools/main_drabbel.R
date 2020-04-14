@@ -54,7 +54,7 @@ test_bandwidths(data = simplefactordata, lavmodel = lavmodel,
 
 
 data("simplefactordata")
-moderator.grid <- 1:9/10
+moderator_grid <- 1:9/10
 lavmodel <- "
         F=~ indicator1 + indicator2 + indicator3 + indicator4
         F ~~ 1*F
@@ -62,29 +62,29 @@ lavmodel <- "
 train_data = simplefactordata[1:200,]
 test_data = simplefactordata[201:400,]
 bandwidth = 1
-moderator = "moderator"
-df_fitted_parameters <- train_lsemmodel(
+moderator_name = "moderator"
+parameters_train_data <- train_lsemmodel(
   data = train_data,
   lavmodel = lavmodel,
   bandwidth = bandwidth,
-  moderator = "moderator",
-  moderator.grid = moderator.grid)$parameters
+  moderator_name  = "moderator",
+  moderator_grid = moderator_grid)$parameters
 
-unique_moderators <- unique(test_data[,moderator])
+unique_moderators_test_data <- unique(test_data[,moderator_name])
 
-df_pars_permod <- calc_pars_permod(
-  moderators = unique_moderators,
+parameters_test_data <- calculate_parameters_permoderator(
+  moderators = unique_moderators_test_data,
   kernel = "gaussian",
   bandwidth = bandwidth,
-  parameters = df_fitted_parameters
+  parameters = parameters_train_data
 )
 
-df_pars_onemod <- df_pars_permod[df_pars_permod$sample_mods == df_pars_permod$sample_mods[1],]
+parameters_onemoderator <- parameters_test_data[parameters_test_data$moderators_test_data == parameters_test_data$moderators_test_data[1],]
 
-RAM_list <- df_pars_permod %>%
-  dplyr::group_by(.data$sample_mods) %>%
+RAM_list <- parameters_test_data %>%
+  dplyr::group_by(.data$moderators_test_data) %>%
   dplyr::group_split() %>%
-  purrr::map(calculate_RAM)
+  purrr::map(calculate_RAM_matrices)
 
 
 

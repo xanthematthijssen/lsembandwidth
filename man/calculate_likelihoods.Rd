@@ -5,14 +5,14 @@
 \title{Calculates likelihood for every row of data with list of RAM matrices for
 every moderator value}
 \usage{
-calculate_likelihoods(data, RAM_list, moderator)
+calculate_likelihoods(data, RAM_list, moderator_name)
 }
 \arguments{
 \item{data}{dataframe for which likelihoods have to be calculated}
 
 \item{RAM_list}{list of RAM matrices for every moderator value}
 
-\item{moderator}{name of the moderator in the dataframe}
+\item{moderator_name}{name of the moderator in the dataframe}
 }
 \value{
 vector of loglikelihoods for every row of data

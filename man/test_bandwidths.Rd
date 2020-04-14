@@ -8,8 +8,8 @@ test_bandwidths(
   data,
   lavmodel,
   bandwidthvector,
-  moderator,
-  moderator.grid,
+  moderator_name,
+  moderator_grid,
   statistic = "AIC",
   K = 10,
   kernel = "gaussian",
@@ -25,9 +25,9 @@ test_bandwidths(
 
 \item{bandwidthvector}{vector of tested bandwidths}
 
-\item{moderator}{Variable name of the moderator}
+\item{moderator_name}{Variable name of the moderator}
 
-\item{moderator.grid}{Focal points at which the LSEM should be evaluated.}
+\item{moderator_grid}{Focal points at which the LSEM should be evaluated.}
 
 \item{statistic}{can be AIC or CV (cross-validated likelihood)}
 
@@ -58,7 +58,7 @@ lavmodel <- "
         F=~ indicator1 + indicator2 + indicator3 + indicator4
         F ~~ 1*F"
 
-test_bandwidths(simplefactordata,moderator="moderator",moderator.grid=c(1:9)/10,
+test_bandwidths(simplefactordata,moderator_name="moderator",moderator_grid=c(1:9)/10,
 lavmodel=lavmodel, bandwidthvector = c(1,2), statistic = "AIC")
 
 }

@@ -1,55 +1,56 @@
 #' This functions makes a matrix with same sequence of colnames and rownames
 #' from a dataframe of fitted values
 #'
-#' @param df_fittedvalues dataframe of fitted values of one type (regression and loadings or (co-)variance)
-#' @param vector_variablenames sequence of variable names to ensure compatability of all matrices
+#' @param estimates dataframe of fitted values of one type (regression and loadings or (co-)variance)
+#' @param ordered_variablenames sequence of variable names to ensure compatability of all matrices
 #'
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data
-#' @return a matrix with same sequence of colnames and rownames as vector_variablenames
+#' @return a matrix with same sequence of colnames and rownames as ordered_variablenames
 #' and values from the dataframe of fitted values and everything else 0
 
-make_full_matrix <- function(df_fittedvalues, vector_variablenames){
+make_full_rammatrix <- function(estimates, ordered_variablenames){
+
   # when something has no fitted value it is assumed to be 0
-  df_allcombinations <- data.frame(sample_mods = -1,
-                       par = "test",
-                       lhs = rep(vector_variablenames, times = length(vector_variablenames)),
-                       op = "test",
-                       rhs = rep(vector_variablenames, each = length(vector_variablenames)),
-                       weighted_est = 0
+  all_combinations_zero <- data.frame(moderators_test_data = -1,
+                       par = "all_combinations_zero",
+                       lhs = rep(ordered_variablenames, times = length(ordered_variablenames)),
+                       op = "all_combinations_zero",
+                       rhs = rep(ordered_variablenames, each = length(ordered_variablenames)),
+                       weighted_estimate = 0
   )
 
-  df_fittedvalues <- rbind(df_fittedvalues, df_allcombinations)
+  estimates <- rbind(estimates, all_combinations_zero)
 
-  df_fittedvalues$duplicated <-
-    duplicated(df_fittedvalues[,c("rhs","lhs")]) |
-    duplicated(df_fittedvalues[,c("rhs","lhs")], fromLast = TRUE)
+  estimates$duplicated <-
+    duplicated(estimates[,c("rhs","lhs")]) |
+    duplicated(estimates[,c("rhs","lhs")], fromLast = TRUE)
 
-  # remove duplicate combinations due to df_allcombinations
-  df_fittedvalues <- dplyr::filter(df_fittedvalues,!(duplicated & .data$par == "test"))
-  df_fittedvalues <- dplyr::select(df_fittedvalues,
+  # remove duplicate combinations due to all_combinations_zero
+  estimates <- dplyr::filter(estimates,!(duplicated & .data$par == "all_combinations_zero"))
+  estimates <- dplyr::select(estimates,
                                 -.data$op,
-                                -.data$par,-.data$sample_mods,
+                                -.data$par,-.data$moderators_test_data,
                                 -.data$duplicated)
 
   # pivor_wider to make rows and colums the variables and values the fitted values
-  matrix <- tidyr::pivot_wider(
-    df_fittedvalues,
+  rammatrix <- tidyr::pivot_wider(
+    estimates,
     names_from = .data$rhs,
-    values_from = .data$weighted_est
+    values_from = .data$weighted_estimate
   )
-  matrix <- as.data.frame(matrix)
+  rammatrix <- as.data.frame(rammatrix)
 
   # make rownames of first column and remove to end up with only numbers
-  rownames(matrix) <- matrix$lhs
-  matrix <- dplyr::select(matrix, -.data$lhs)
+  rownames(rammatrix) <- rammatrix$lhs
+  rammatrix <- dplyr::select(rammatrix, -.data$lhs)
 
   # ensure same sequence rownames, colnames and everything
-  matrix <- matrix[vector_variablenames,]
-  matrix <- matrix[,vector_variablenames]
+  rammatrix <- rammatrix[ordered_variablenames,]
+  rammatrix <- rammatrix[,ordered_variablenames]
 
-  matrix <- as.matrix(matrix)
+  rammatrix <- as.matrix(rammatrix)
 
-  return(matrix)
+  return(rammatrix)
 
 }

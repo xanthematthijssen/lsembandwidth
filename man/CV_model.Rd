@@ -4,14 +4,14 @@
 \alias{CV_model}
 \title{Cross validates lavaan model over list with bandwidths and training and test sets}
 \usage{
-CV_model(list, moderator, moderator.grid, lavmodel, kernel, digits, ...)
+CV_model(list, moderator_name, moderator_grid, lavmodel, kernel, digits, ...)
 }
 \arguments{
 \item{list}{list with bandwidths and training and test sets}
 
-\item{moderator}{name of moderator}
+\item{moderator_name}{name of moderator}
 
-\item{moderator.grid}{grid for moderator values}
+\item{moderator_grid}{grid for moderator values}
 
 \item{lavmodel}{lavaan model}
 
@@ -41,8 +41,8 @@ bandwidthvector <- c(1,2)
 list <- purrr::cross2(create_crossvaldata(data = simplefactordata, K = 10),
    bandwidthvector)
 
-CV_model(list = list[[1]], moderator = "moderator",
-       moderator.grid =c(1:9)/10,
+CV_model(list = list[[1]], moderator_name = "moderator",
+       moderator_grid =c(1:9)/10,
        lavmodel = lavmodel, kernel ="gaussian")
 
 

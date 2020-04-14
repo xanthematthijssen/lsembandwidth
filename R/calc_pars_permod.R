@@ -1,11 +1,9 @@
-
-
 #' Calculates weighted parameters per moderator value
 #'
-#' @param moderators moderator values for which parameters have to be estimated
+#' @param moderators_test_data moderator values for which parameters have to be estimated
 #' @param kernel  kernel
 #' @param bandwidth bandwidth
-#' @param parameters dataframe with estimated parameters for moderators in moderator grid
+#' @param parameters_train_data dataframe with estimated parameterer in moderator grid
 #'
 #' @return dataframe with parameter values per moderator value
 #' @export
@@ -20,42 +18,42 @@
 #'         F=~ indicator1 + indicator2 + indicator3 + indicator4
 #'         F ~~ 1*F"
 #'
-#'model <- train_lsemmodel( simplefactordata, moderator="moderator",
-#' moderator.grid=c(1:9)/10,
+#'model <- train_lsemmodel( simplefactordata, moderator_name="moderator",
+#' moderator_grid=c(1:9)/10,
 #'lavmodel=lavmodel, bandwidth =2)
 #'
-#'calc_pars_permod(moderators =  unique(simplefactordata$moderator),
-#' bandwidth = 0.2, parameters = model$parameters, kernel = "gaussian" )
+#'calculate_parameters_permoderator(moderators_test_data =  unique(simplefactordata$moderator),
+#' bandwidth = 0.2, parameters_train_data = model$parameters, kernel = "gaussian" )
 #'
 #'
 #'
-calc_pars_permod <- function(moderators,
+calculate_parameters_permoderator <- function(moderators_test_data,
                  kernel,
                  bandwidth,
-                 parameters){
+                 parameters_train_data){
   # make dataframe for every combination of moderator value given to the function
   # and moderator values in the moderator grid (also known as focal points)
-  # sample_mods are moderator values given to the function
-  # fitted_mods are moderator values in the moderator grid
-  df_mods <-
+  # moderators are moderator values given to the function
+  # focal_points are moderator values in the moderator grid
+  cross_df_focalpoints_moderators <-
     purrr::cross_df(list(
-      sample_mods = moderators,
-      fitted_mods = unique(parameters$moderator)
+      moderators_test_data = moderators_test_data,
+      focal_points = unique(parameters_train_data$moderator)
     ))
 
   # calculate weigths for these combinations
-  df_mods$weights <-
-    lsem_kernel_weights(df_mods$sample_mods,
-                        df_mods$fitted_mods,
+  cross_df_focalpoints_moderators$weights <-
+    lsem_kernel_weights(cross_df_focalpoints_moderators$moderators_test_data,
+                        cross_df_focalpoints_moderators$focal_points,
                         bw = bandwidth,
                         kernel = kernel)
 
   # merge in parameter values
-  df_mods <-
+  cross_df_focalpoints_moderators <-
     merge(
-      df_mods,
-      parameters,
-      by.x = "fitted_mods",
+      cross_df_focalpoints_moderators,
+      parameters_train_data,
+      by.x = "focal_points",
       by.y = "moderator",
       all.x = T,
       all.y = F,
@@ -63,21 +61,21 @@ calc_pars_permod <- function(moderators,
     )
 
   # calculate weighted mean of every parameter for every value of the moderator given to the function
-  df_pars_permod <-
-    df_mods %>%
-    dplyr::group_by(.data$sample_mods, .data$par) %>%
-    dplyr::mutate(weighted_est = sum(.data$weights * .data$est) / sum(.data$weights)) %>%
+  parameters_permoderator <-
+    cross_df_focalpoints_moderators %>%
+    dplyr::group_by(.data$moderators_test_data, .data$par) %>%
+    dplyr::mutate(weighted_estimate = sum(.data$weights * .data$est) / sum(.data$weights)) %>%
     dplyr::slice(1) %>%
-    dplyr::select(.data$sample_mods,
+    dplyr::select(.data$moderators_test_data,
                   .data$par,
                   .data$lhs,
                   .data$op,
                   .data$rhs,
-                  .data$weighted_est)
+                  .data$weighted_estimate)
 
 
-  print(df_pars_permod)
+  print(parameters_permoderator)
 
-  return(df_pars_permod)
+  return(parameters_permoderator)
 
 }

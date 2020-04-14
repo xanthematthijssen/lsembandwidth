@@ -4,7 +4,7 @@
 \alias{train_lsemmodel}
 \title{Fits LSEM model on training set with predefined bandwidth}
 \usage{
-train_lsemmodel(data, lavmodel, bandwidth, moderator, moderator.grid, ...)
+train_lsemmodel(data, lavmodel, bandwidth, moderator_name, moderator_grid, ...)
 }
 \arguments{
 \item{data}{training dataset}
@@ -13,9 +13,9 @@ train_lsemmodel(data, lavmodel, bandwidth, moderator, moderator.grid, ...)
 
 \item{bandwidth}{Bandwidth factor}
 
-\item{moderator}{Variable name of the moderator}
+\item{moderator_name}{Variable name of the moderator}
 
-\item{moderator.grid}{Focal points at which the LSEM should be evaluated.}
+\item{moderator_grid}{Focal points at which the LSEM should be evaluated.}
 
 \item{...}{Further arguments to be passed to lavaan::sem or lavaan::lavaan.}
 }
@@ -33,7 +33,7 @@ lavmodel <- "
         F=~ indicator1 + indicator2 + indicator3 + indicator4
         F ~~ 1*F"
 
-train_lsemmodel(simplefactordata,moderator="moderator",moderator.grid=c(1:9)/10,
+train_lsemmodel(simplefactordata,moderator_name="moderator",moderator_grid=c(1:9)/10,
 lavmodel=lavmodel, bandwidth=2)
 
 

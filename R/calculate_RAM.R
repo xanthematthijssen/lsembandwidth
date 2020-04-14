@@ -1,81 +1,83 @@
 #' Calculates RAM matrices from dataframe of fittted values
 #'
 #'
-#' @param df_pars_onemod df of estimated parameters of lsem model for one value of the moderator
+#' @param parameters_onemoderator df of estimated parameters of lsem model for one value of the moderator
 #' @return list:
 #' value_moderator = value of moderator for the matrices;
-#' vector_means = estimated means of multivariate normal;
+#' expected_means = estimated means of multivariate normal;
 #' matrix_covariance = estimated covariance of multivariate normal;
-#' vector_variablenames = sequence variable names in which all matrices / vectors are ordered;
+#' ordered_variablenames = sequence variable names in which all matrices / vectors are ordered;
 #'
 #' @importFrom rlang .data
 #' @importFrom magrittr %>%
 
 
-calculate_RAM <- function(df_pars_onemod) {
-  vector_variablenames <- unique(c(df_pars_onemod$lhs, df_pars_onemod$rhs))
-  vector_variablenames <- vector_variablenames[vector_variablenames != ""]
+calculate_RAM_matrices <- function(parameters_onemoderator) {
+  ordered_variablenames <- unique(c(parameters_onemoderator$lhs, parameters_onemoderator$rhs))
+  ordered_variablenames <- ordered_variablenames[ordered_variablenames != ""]
 
-  n_vars <- length(vector_variablenames)
+  n_vars <- length(ordered_variablenames)
 
   #input dataframe is grouped, so ungroup it to avoid errors
-  df_pars_onemod <- dplyr::ungroup(df_pars_onemod)
+  parameters_onemoderator <- dplyr::ungroup(parameters_onemoderator)
 
   # split up data frame in types
-  fitted_intercepts <- df_pars_onemod %>% dplyr::filter(.data$op == "~1")
-  fitted_covariances <- df_pars_onemod %>% dplyr::filter(.data$op == "~~")
-  fitted_loadings <- df_pars_onemod %>% dplyr::filter(.data$op == "=~")
-  fitted_betas <- df_pars_onemod %>% dplyr::filter(.data$op == "~")
+  intercepts <- parameters_onemoderator %>% dplyr::filter(.data$op == "~1")
+  psis <- parameters_onemoderator %>% dplyr::filter(.data$op == "~~")
+  lambdas <- parameters_onemoderator %>% dplyr::filter(.data$op == "=~")
+  betas <- parameters_onemoderator %>% dplyr::filter(.data$op == "~")
 
-  value_moderator <- df_pars_onemod$sample_mods[1]
+  moderator_value <- parameters_onemoderator$moderators_test_data[1]
 
   # make intercept vector (Theta)
-  vector_intercepts <- fitted_intercepts$weighted_est
-  names(vector_intercepts) <- fitted_intercepts$lhs
-  vector_intercepts <- vector_intercepts[vector_variablenames]
-  vector_intercepts[is.na(vector_intercepts)] <- 0
-  names(vector_intercepts) <- vector_variablenames
+  ramvector_theta <- intercepts$weighted_estimate
+  names(ramvector_theta) <- intercepts$lhs
+  ramvector_theta <- ramvector_theta[ordered_variablenames]
+  ramvector_theta[is.na(ramvector_theta)] <- 0
+  names(ramvector_theta) <- ordered_variablenames
 
-  # make regression and loading matrix (Beta)
-  matrix_beta <-
-    make_full_matrix(rbind(fitted_loadings, fitted_betas),
-                     vector_variablenames = vector_variablenames)
+
+
+  rammatrix_beta <-
+    make_full_rammatrix(rbind(lambdas, betas),
+                     ordered_variablenames = ordered_variablenames)
 
   # (co-)variance matrix (Eta)
-  fitted_covariances <-
-    rbind(fitted_covariances,
-          fitted_covariances %>%
+  psis <-
+    rbind(psis,
+          psis %>%
             dplyr::mutate(hs = .data$lhs,
                           lhs = .data$rhs,
                           rhs = .data$hs) %>%
             dplyr::select(-.data$hs))
-  fitted_covariances <- fitted_covariances[!duplicated(fitted_covariances),]
+  psis <- psis[!duplicated(psis),]
 
-  matrix_additional_covariance <-
-    make_full_matrix(fitted_covariances, vector_variablenames = vector_variablenames)
+  rammatrix_eta <-
+    make_full_rammatrix(psis, ordered_variablenames = ordered_variablenames)
 
 
 
   # combine into multivariate normal covariance matrix and expected value vector
-  # if (diag(n_vars) - matrix_beta) is invertable
-  if (det(diag(n_vars) - matrix_beta) > 0) {
-    matrix_covariance <-
-      solve(diag(n_vars) - matrix_beta) %*%
-      matrix_additional_covariance %*%
-      t(solve(diag(n_vars) - matrix_beta))
+  # if (diag(n_vars) - rammatrix_beta) is invertable
+  if (det(diag(n_vars) - rammatrix_beta) > 0) {
+    expected_covariance <-
+      solve(diag(n_vars) - rammatrix_beta) %*%
+      rammatrix_eta %*%
+      t(solve(diag(n_vars) - rammatrix_beta))
 
-    vector_means <-
-      solve(diag(n_vars) - matrix_beta) %*%
-      vector_intercepts
+    expected_means <-
+      solve(diag(n_vars) - rammatrix_beta) %*%
+      ramvector_theta
   } else {
     cat("diag minus beta matrix is not invertable")
   }
 
+  # filtering will happen later
 
   return(list(
-    value_moderator = value_moderator,
-    vector_means = vector_means,
-    vector_variablenames = vector_variablenames,
-    matrix_covariance = matrix_covariance
+    moderator_value = moderator_value,
+    expected_means = expected_means,
+    ordered_variablenames = ordered_variablenames,
+    expected_covariance = expected_covariance
   ))
 }
