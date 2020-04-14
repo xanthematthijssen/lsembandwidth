@@ -36,7 +36,14 @@ calculate_RAM_matrices <- function(parameters_onemoderator) {
   ramvector_theta[is.na(ramvector_theta)] <- 0
   names(ramvector_theta) <- ordered_variablenames
 
-
+  # reverse direction of lambdas because indicators regress on latents
+  # not other way around
+  lambdas <-
+    lambdas %>%
+    dplyr::mutate(hs = .data$lhs,
+                  lhs = .data$rhs,
+                  rhs = .data$hs) %>%
+    dplyr::select(-.data$hs)
 
   rammatrix_beta <-
     make_full_rammatrix(rbind(lambdas, betas),
