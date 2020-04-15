@@ -13,11 +13,11 @@ calculate_likelihoods <- function(data, RAM_list, moderator_name){
   moderator_values <- sapply(RAM_list,function(list) list[["moderator_value"]])
 
   #  extract variables that are observed in right sequence
-  observed_variables <- intersect(names(RAM_list[[1]][["expected_means"]]),
+  observed_variables <- intersect(colnames(RAM_list[[1]][["expected_covariance"]]),
                          colnames(data))
 
   # lists for means and covariances for every moderator value
-  list_means <- lapply(RAM_list,function(list) {list[["expected_means"]][observed_variables]})
+  list_means <- lapply(RAM_list,function(list) {list[["expected_means"]][observed_variables,]})
   list_covs <- lapply(RAM_list,function(list) {list[["expected_covariance"]][observed_variables, observed_variables]})
 
   # calculate loglikelihoods

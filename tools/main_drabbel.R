@@ -48,8 +48,8 @@ test_bandwidths(data = simplefactordata, lavmodel = lavmodel,
 
 
 test_bandwidths(data = simplefactordata, lavmodel = lavmodel,
-                bandwidthvector = c(0.1,2,3), moderator = "moderator",
-                moderator.grid = moderator.grid, statistic  = "CV", K=3,
+                bandwidthvector = c(0.1,2,3), moderator_name = "moderator",
+                moderator_grid = moderator_grid, statistic  = "CV", K=3,
                 digits = 2)
 
 
