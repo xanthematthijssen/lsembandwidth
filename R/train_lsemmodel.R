@@ -33,7 +33,7 @@ train_lsemmodel <- function(data,
     moderator = moderator_name,
     moderator.grid = moderator_grid,
     lavmodel = lavmodel,
-    h = bandwidth,
+    bw = bandwidth,
     verbose = FALSE,
     est_joint = TRUE,
     ...

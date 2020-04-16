@@ -25,7 +25,8 @@ calculate_likelihoods <- function(data, RAM_list, moderator_name){
   apply(data, 1, function(x){
     nonmissing_variables <- observed_variables[!is.na(x[observed_variables])]
     index <- c(1:length(moderator_values))[moderator_values == as.numeric(x[moderator_name])]
-
+    # here we use that the marginal density of the joint Gaussian is gaussian
+    # http://cs229.stanford.edu/section/more_on_gaussians.pdf
     if(length(nonmissing_variables) == 0) {
       cat("observation with onlymissing values")
       return(0)
