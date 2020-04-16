@@ -4,7 +4,16 @@
 \alias{CV_model}
 \title{Cross validates lavaan model over list with bandwidths and training and test sets}
 \usage{
-CV_model(list, moderator_name, moderator_grid, lavmodel, kernel, digits, ...)
+CV_model(
+  list,
+  moderator_name,
+  moderator_grid,
+  lavmodel,
+  kernel,
+  digits,
+  silent = FALSE,
+  ...
+)
 }
 \arguments{
 \item{list}{list with bandwidths and training and test sets}
@@ -18,6 +27,8 @@ CV_model(list, moderator_name, moderator_grid, lavmodel, kernel, digits, ...)
 \item{kernel}{kernel used}
 
 \item{digits}{number of digits test_data moderator is rounded to, can be lowerd to increase speed}
+
+\item{silent}{if false print output in the meantime (false = default)}
 
 \item{...}{further arguments to be passed to lavaan::sem or lavaan::lavaan}
 }

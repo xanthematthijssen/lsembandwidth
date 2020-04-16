@@ -4,7 +4,7 @@
 #' @param kernel  kernel
 #' @param bandwidth bandwidth
 #' @param parameters_train_data dataframe with estimated parameterer in moderator grid
-#'
+#' @param silent if false print output in the meantime (false = default)
 #' @return dataframe with parameter values per moderator value
 #' @export
 #' @importFrom magrittr %>%
@@ -30,7 +30,8 @@
 calculate_parameters_permoderator <- function(moderators_test_data,
                  kernel,
                  bandwidth,
-                 parameters_train_data){
+                 parameters_train_data,
+                 silent = FALSE){
   # make dataframe for every combination of moderator value given to the function
   # and moderator values in the moderator grid (also known as focal points)
   # moderators are moderator values given to the function
@@ -74,7 +75,7 @@ calculate_parameters_permoderator <- function(moderators_test_data,
                   .data$weighted_estimate)
 
 
-  print(parameters_permoderator)
+  if(!silent) {print(parameters_permoderator)}
 
   return(parameters_permoderator)
 

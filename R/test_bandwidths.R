@@ -13,6 +13,7 @@
 #' defaults to 6
 #' @param maxbandwidthdistance the amount of bandwidths from every point in the
 #' moderator grid that a point in the dataset must be present
+#' @param silent if false print output in the meantime (false = default)
 #' @param ... further arguments to be passed to lavaan::sem or lavaan::lavaan.
 #'
 #' @return dataframe with fit measures for every bandwidth
@@ -41,6 +42,7 @@ test_bandwidths <- function(data,
                             kernel = "gaussian",
                             digits = 6,
                             maxbandwidthdistance = 2,
+                            silent = FALSE,
                             ...) {
 
   # if all points in dataset too far from point in moderator grid return error
@@ -88,10 +90,11 @@ test_bandwidths <- function(data,
         lavmodel = lavmodel,
         kernel = kernel,
         digits = digits,
+        silent = silent,
         ...
       )
 
-    print(df_loglikelihood)
+    if(!silent){print(df_loglikelihood)}
 
     # sum loglikelihoods of cross-validation sets to get statistic per bandwidth
     df_statistics <-

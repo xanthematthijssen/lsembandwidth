@@ -1,0 +1,145 @@
+---
+title: "Template"
+author: "X Matthijssen"
+output: 
+  html_document:
+    toc: true
+    theme: united
+    toc_depth: 2
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_file = paste0(substr(inputFile,1,nchar(inputFile)-4),Sys.Date(),'.html')) })
+---
+
+```{r setup, echo = F, message = F, results = 'hide'}
+# required packages 
+
+if(!require(sirt)){install.packages("sirt"); library(sirt)}
+if(!require(tidyverse)){install.packages("tidyverse"); library(tidyverse)}
+if(!require(tidylog)){install.packages("tidylog"); library(tidylog)}
+if(!require(devtools)){install.packages("devtools"); library(devtools)}
+load_all()
+
+# General setup 
+rm(list=ls())
+set.seed(121212)
+
+# start timer 
+starting_time <- proc.time()
+```
+
+
+# Data preperation 
+
+## Read  data 
+
+```{r}
+load("I:/Promovendi_Annette/Xanthe/4. Analyse hele EAC/EAC-nieuwe-start/0. Data/Produced/Beforeimp 2019-01-16.RData")
+
+```
+
+## clean data 
+```{r}
+
+```
+
+
+## Merge data 
+```{r}
+
+```
+
+## Make variables 
+```{r}
+data <- data %>% mutate(inclusiejaar = format.Date(DAT1EBEZ,"%Y") %>% as.numeric) 
+
+
+data <- data %>% mutate(
+  TJC_conv = 0.56*sqrt(TJC28),
+  SJC_conv = 0.28*sqrt(SJC28),
+  ESR_conv = 0.70*logbse,
+  GH_conv = 0.014*VASZACT
+)
+```
+
+## Subset data 
+```{r}
+
+data<- data %>% filter(!(is.na(TJC_conv) & is.na(SJC_conv) & is.na(ESR_conv) & !is.na(GH_conv)))
+
+
+data_base <- data %>% filter(BEZNR ==1)
+
+
+```
+
+# Functions
+
+# Constants
+```{r}
+# intercepts will follow automaticly
+lavmodel <- "
+        F=~ ESR_conv+SJC_conv+TJC_conv+GH_conv
+        F ~~ 1*F"
+
+
+moderator_grid <- unique(data$inclusiejaar) %>% as.numeric()
+moderator_grid5 <- c(1990,1995,2000,2005,2010,2015,2020)
+moderator_grid10 <- c(1990,2000,2010,2020)
+
+bandwidths <- c(2,5,10,15)
+
+```
+
+# Analyses 
+## bandwidth analysis AIC 
+Lower AIC is better 
+```{r}
+
+test_bandwidths(data = data_base, lavmodel = lavmodel,
+                bandwidthvector = bandwidths, moderator_name = "inclusiejaar",
+                moderator_grid = moderator_grid)
+
+
+test_bandwidths(data = data, lavmodel = lavmodel,
+                bandwidthvector = bandwidths, moderator_name = "inclusiejaar",
+                moderator_grid = moderator_grid5)
+
+test_bandwidths(data = data, lavmodel = lavmodel,
+                bandwidthvector = bandwidths, moderator_name = "inclusiejaar",
+                moderator_grid = moderator_grid10)
+```
+
+
+## bandwidth analysis CV
+Higher log likelihood is better 
+So lower negative number 
+```{r}
+
+
+test_bandwidths(data = data_base, lavmodel = lavmodel,
+                bandwidthvector = bandwidths, moderator_name = "inclusiejaar",
+                moderator_grid = moderator_grid, statistic = "CV", silent = TRUE)
+
+test_bandwidths(data = data_base, lavmodel = lavmodel,
+                bandwidthvector = bandwidths, moderator_name = "inclusiejaar",
+                moderator_grid = moderator_grid5, statistic = "CV", silent = TRUE)
+
+test_bandwidths(data = data_base, lavmodel = lavmodel,
+                bandwidthvector = bandwidths, moderator_name = "inclusiejaar",
+                moderator_grid = moderator_grid10, statistic = "CV", silent = TRUE)
+
+
+
+```
+
+
+
+# Summary 
+
+# Session info
+
+```{r}
+sessionInfo() 
+
+proc.time() - starting_time
+```
+

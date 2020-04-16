@@ -8,7 +8,8 @@ calculate_parameters_permoderator(
   moderators_test_data,
   kernel,
   bandwidth,
-  parameters_train_data
+  parameters_train_data,
+  silent = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ calculate_parameters_permoderator(
 \item{bandwidth}{bandwidth}
 
 \item{parameters_train_data}{dataframe with estimated parameterer in moderator grid}
+
+\item{silent}{if false print output in the meantime (false = default)}
 }
 \value{
 dataframe with parameter values per moderator value

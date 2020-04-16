@@ -15,6 +15,7 @@ test_bandwidths(
   kernel = "gaussian",
   digits = 6,
   maxbandwidthdistance = 2,
+  silent = FALSE,
   ...
 )
 }
@@ -41,6 +42,8 @@ defaults to 6}
 
 \item{maxbandwidthdistance}{the amount of bandwidths from every point in the
 moderator grid that a point in the dataset must be present}
+
+\item{silent}{if false print output in the meantime (false = default)}
 
 \item{...}{further arguments to be passed to lavaan::sem or lavaan::lavaan.}
 }

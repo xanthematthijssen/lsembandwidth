@@ -6,6 +6,7 @@
 #' @param lavmodel lavaan model
 #' @param kernel kernel used
 #' @param digits number of digits test_data moderator is rounded to, can be lowerd to increase speed
+#' @param silent if false print output in the meantime (false = default)
 #' @param ... further arguments to be passed to lavaan::sem or lavaan::lavaan
 #'
 #' @return dataframe of bandwidths and likelihoods
@@ -31,7 +32,7 @@
 #'        lavmodel = lavmodel, kernel ="gaussian")
 #'
 #'
-CV_model <- function(list, moderator_name, moderator_grid, lavmodel, kernel, digits, ...){
+CV_model <- function(list, moderator_name, moderator_grid, lavmodel, kernel, digits, silent = FALSE, ...){
 
   bandwidth <- list[[2]]
   train_data <- list[[1]][["training"]]
@@ -56,7 +57,8 @@ CV_model <- function(list, moderator_name, moderator_grid, lavmodel, kernel, dig
     moderators_test_data = unique_moderators_test_data,
     kernel = kernel,
     bandwidth = bandwidth,
-    parameters_train_data = parameters_train_data
+    parameters_train_data = parameters_train_data,
+    silent = silent
   )
   # calculate RAM matrices for every unique moderator value in the test set
   RAM_matrices_test_data <- parameters_test_data %>%
