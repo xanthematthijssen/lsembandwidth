@@ -1,0 +1,12 @@
+16-04-2020 Henk Verslag	
+-	Uitzoeken hoe het in RegSem met AIC ging
+-	loglik omrekenen naar deviance (mooier) 
+-	Intercepts moeten erbij 
+-	Nadenken -> alle loadings even belangrijk 
+-	Doen: geimputeerde data 
+-	lading op 1 zetten manueel 
+-	Trycatch doen 
+-	Is er standarisatie? intercepts bijan 0 
+-	Wat is de 0 
+-	Midterm gaat Henk naar kijken 
+-	Verder overzicht maken ook voor anntte en ook voor groter model 

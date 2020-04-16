@@ -88,8 +88,10 @@ lavmodel_int <- "
 "
 
 moderator_grid <- unique(data$inclusiejaar) %>% as.numeric()
+moderator_grid2 <- c(1995,2000,2005,2010,2015)
 
 bandwidths <- c(2,5,10,15)
+
 
 ```
 
@@ -110,55 +112,131 @@ hildebrandt_bw <- calculate_bandwidth(n = nrow(data_base),
 hildebrandt_bw
 
 bandwidths <- c(bandwidths, hildebrandt_bw)
+
 ```
 
-### model as proposed by hildebrand
+### measurement invariance in with loglik'
+mag niet want allemaal dependetn 
+
 ```{r}
 
-mod1 <- sirt::lsem.estimate( data_base, moderator="inclusiejaar", 
-                             moderator.grid=moderator_grid,
-                             lavmodel=lavmodel, h=2 , std.lv=TRUE,
-                            fit_measures = "aic")
-summary(mod1)
+full_model <- sirt::lsem.estimate(
+  data_base,
+  moderator = "inclusiejaar",
+  moderator.grid = moderator_grid,
+  lavmodel = lavmodel_int,
+  h = 2 ,
+  fit_measures = c("aic", "df", "chisq", "logl"),
+  est_joint  = TRUE,
+  par_invariant = c("F=~ESR_conv")
+)
 
-plot(mod1, parindex=1:4, ask = F)
+summary(full_model)
+
+metricinvariant_model <- sirt::lsem.estimate(
+  data_base,
+  moderator = "inclusiejaar",
+  moderator.grid = moderator_grid,
+  lavmodel = lavmodel_int,
+  h = 2 ,
+  fit_measures = c("aic", "df", "chisq", "logl"),
+  est_joint  = TRUE,
+  par_invariant = c("F=~GH_conv", "F=~TJC_conv","F=~SJC_conv")
+) 
+
+summary(metricinvariant_model)
 
 
+scalarinvariant_model <- sirt::lsem.estimate(
+  data_base,
+  moderator = "inclusiejaar",
+  moderator.grid = moderator_grid,
+  lavmodel = lavmodel_int,
+  h = 2 ,
+  fit_measures = c("aic", "df", "chisq", "logl"),
+  est_joint  = TRUE,
+  par_invariant = c("F=~GH_conv", "F=~TJC_conv","F=~SJC_conv",
+                    "ESR_conv~1", "SJC_conv~1", "TJC_conv~1", "GH_conv~1")
+) 
+
+df_metric_invar <- metricinvariant_model$fitstats_joint["df","value"] - 
+  full_model$fitstats_joint["df","value"]
+
+teststat_metric_invar <-
+  -2*(metricinvariant_model$fitstats_joint["logl","value"] - 
+        full_model$fitstats_joint["logl","value"] 
+) 
+
+df_scalar_invar <- scalarinvariant_model$fitstats_joint["df","value"] - 
+  metricinvariant_model$fitstats_joint["df","value"]
+
+teststat_scalar_invar <-
+  -2*(scalarinvariant_model$fitstats_joint["logl","value"] - 
+        metricinvariant_model$fitstats_joint["logl","value"] 
+) 
+
+pchisq(teststat_metric_invar,df=df_metric_invar,lower.tail=FALSE)
+pchisq(teststat_scalar_invar,df=df_scalar_invar,lower.tail=FALSE)
 
 ```
 
-### model with intercepts
-```{r}
-mod1_int <- sirt::lsem.estimate( data_base, moderator="inclusiejaar", 
-                             moderator.grid=moderator_grid,
-                             lavmodel=lavmodel_int, h=2 , std.lv=TRUE,
-                            fit_measures = "aic")
-summary(mod1_int)
-
-plot(mod1_int, parindex=1:4, ask = F)
-```
 
 
 ### permuation test model 
+
+
 ```{r, eval= FALSE}
-pmod1 <- sirt::lsem.permutationTest(mod1, B=1000)
+pmod1 <-lsem.permutationTest(
+ lsem.estimate(
+    data_base,
+    moderator = "inclusiejaar",
+    moderator.grid = moderator_grid,
+    lavmodel = lavmodel,
+    h = 2,
+    fit_measures = "aic"
+  ),
+  B = 1000
+)
+
+save(pmod1, file = paste("../output/", Sys.Date(), "pmod1.RData", sep = ""))
+
+pmod2 <-lsem.permutationTest(
+ lsem.estimate(
+    data_base,
+    moderator = "inclusiejaar",
+    moderator.grid = moderator_grid,
+    lavmodel = lavmodel_int,
+    h = 2,
+    fit_measures = "aic"
+  ),
+  B = 1000
+)
+
+save(pmod2, file = paste("../output/", Sys.Date(), "pmod2.RData", sep = ""))
+
+```
+
+### permutation load 
+```{r}
+load("H:/lsembandwidth/output/2020-04-16pmod1.RData")
 
 summary(pmod1)
 
-pmod1_int <- sirt::lsem.permutationTest(mod1, B=1000)
+load("H:/lsembandwidth/output/2020-04-16pmod2.RData")
 
-summary(pmod1_int)
+summary(pmod2)
+
 
 ```
 
 
 ## bandwidth analysis AIC 
 Lower AIC is better 
-```{r,cache=TRUE}
+```{r}
 
 test_bandwidths(
   data = data_base,
-  lavmodel = lavmodel,
+  lavmodel = lavmodel_int,
   bandwidthvector = bandwidths[bandwidths > 3],
   moderator_name = "inclusiejaar",
   moderator_grid = c(1995,2000,2005,2010,2015),
@@ -172,12 +250,12 @@ test_bandwidths(
 ## bandwidth analysis CV
 Higher log likelihood is better 
 So lower negative number 
-```{r,cache=TRUE}
+```{r}
 
 
 test_bandwidths(
   data = data_base,
-  lavmodel = lavmodel,
+  lavmodel = lavmodel_int,
   bandwidthvector = bandwidths[bandwidths > 3],
   moderator_name = "inclusiejaar",
   moderator_grid = c(1995,2000,2005,2010,2015),
