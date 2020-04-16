@@ -1,5 +1,5 @@
 ---
-title: "Initial analysis"
+title: "Template"
 author: "X Matthijssen"
 output: 
   html_document:
@@ -78,115 +78,60 @@ data_base <- data %>% filter(BEZNR ==1)
 # intercepts will follow automaticly
 lavmodel <- "
         F=~ ESR_conv+SJC_conv+TJC_conv+GH_conv
-"
-lavmodel_int <- "
-        F=~ ESR_conv+SJC_conv+TJC_conv+GH_conv
-          ESR_conv ~ 1
-  SJC_conv ~ 1
-  TJC_conv~ 1
-  GH_conv ~ 1
-"
+        F ~~ 1*F"
+
 
 moderator_grid <- unique(data$inclusiejaar) %>% as.numeric()
+moderator_grid5 <- c(1990,1995,2000,2005,2010,2015,2020)
+moderator_grid10 <- c(1990,2000,2010,2020)
 
 bandwidths <- c(2,5,10,15)
 
 ```
 
 # Analyses 
-## Hilderbrandt
-### bandwidths due to Hildebrand
-```{r}
-calculate_bandwidth <- function(n, sd, h){
-  bw <- (h* sd )/ n^0.2
-  return(bw)
-}
-
-# these would be the bandwidths based on the bandwidht factors in hilderbrandt et al
-hildebrandt_bw <- calculate_bandwidth(n = nrow(data_base), 
-                    sd = sd(data_base$inclusiejaar), 
-                    h = c(1.1,2,3))
-
-hildebrandt_bw
-
-bandwidths <- c(bandwidths, hildebrandt_bw)
-```
-
-### model as proposed by hildebrand
-```{r}
-
-mod1 <- sirt::lsem.estimate( data_base, moderator="inclusiejaar", 
-                             moderator.grid=moderator_grid,
-                             lavmodel=lavmodel, h=2 , std.lv=TRUE,
-                            fit_measures = "aic")
-summary(mod1)
-
-plot(mod1, parindex=1:4, ask = F)
-
-
-
-```
-
-### model with intercepts
-```{r}
-mod1_int <- sirt::lsem.estimate( data_base, moderator="inclusiejaar", 
-                             moderator.grid=moderator_grid,
-                             lavmodel=lavmodel_int, h=2 , std.lv=TRUE,
-                            fit_measures = "aic")
-summary(mod1_int)
-
-plot(mod1_int, parindex=1:4, ask = F)
-```
-
-
-### permuation test model 
-```{r, eval = F}
-pmod1 <- sirt::lsem.permutationTest(mod1, B=1000)
-
-summary(pmod1)
-
-pmod1_int <- sirt::lsem.permutationTest(mod1, B=1000)
-
-summary(pmod1_int)
-
-```
-
-
 ## bandwidth analysis AIC 
 Lower AIC is better 
-```{r,cache=TRUE}
+```{r}
 
-test_bandwidths(
-  data = data_base,
-  lavmodel = lavmodel,
-  bandwidthvector = bandwidths[bandwidths > 3],
-  moderator_name = "inclusiejaar",
-  moderator_grid = c(1995,2000,2005,2010,2015),
-)
+test_bandwidths(data = data_base, lavmodel = lavmodel,
+                bandwidthvector = bandwidths, moderator_name = "inclusiejaar",
+                moderator_grid = moderator_grid)
 
+
+test_bandwidths(data = data, lavmodel = lavmodel,
+                bandwidthvector = bandwidths, moderator_name = "inclusiejaar",
+                moderator_grid = moderator_grid5)
+
+test_bandwidths(data = data, lavmodel = lavmodel,
+                bandwidthvector = bandwidths, moderator_name = "inclusiejaar",
+                moderator_grid = moderator_grid10)
 ```
 
 
 ## bandwidth analysis CV
 Higher log likelihood is better 
 So lower negative number 
-```{r,cache=TRUE}
+```{r}
 
 
-test_bandwidths(
-  data = data_base,
-  lavmodel = lavmodel,
-  bandwidthvector = bandwidths[bandwidths > 3],
-  moderator_name = "inclusiejaar",
-  moderator_grid = c(1995,2000,2005,2010,2015),
-  K = 5,
-  statistic = "CV",
-  silent = TRUE
-)
+test_bandwidths(data = data_base, lavmodel = lavmodel,
+                bandwidthvector = bandwidths, moderator_name = "inclusiejaar",
+                moderator_grid = moderator_grid, statistic = "CV", silent = TRUE)
+
+test_bandwidths(data = data_base, lavmodel = lavmodel,
+                bandwidthvector = bandwidths, moderator_name = "inclusiejaar",
+                moderator_grid = moderator_grid5, statistic = "CV", silent = TRUE)
+
+test_bandwidths(data = data_base, lavmodel = lavmodel,
+                bandwidthvector = bandwidths, moderator_name = "inclusiejaar",
+                moderator_grid = moderator_grid10, statistic = "CV", silent = TRUE)
 
 
 
 ```
+
+
 
 # Summary 
 
