@@ -140,7 +140,7 @@ plot(mod1_int, parindex=1:4, ask = F)
 
 
 ### permuation test model 
-```{r, eval = F}
+```{r, cache = TRUE}
 pmod1 <- sirt::lsem.permutationTest(mod1, B=1000)
 
 summary(pmod1)
@@ -161,7 +161,7 @@ test_bandwidths(
   lavmodel = lavmodel,
   bandwidthvector = bandwidths[bandwidths > 3],
   moderator_name = "inclusiejaar",
-  moderator_grid = c(1995,2000,2005,2010,2015),
+  moderator_grid = moderator_grid,
 )
 
 ```
@@ -178,7 +178,7 @@ test_bandwidths(
   lavmodel = lavmodel,
   bandwidthvector = bandwidths[bandwidths > 3],
   moderator_name = "inclusiejaar",
-  moderator_grid = c(1995,2000,2005,2010,2015),
+  moderator_grid = moderator_grid,
   K = 5,
   statistic = "CV",
   silent = TRUE
