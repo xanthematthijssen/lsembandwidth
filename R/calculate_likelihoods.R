@@ -11,6 +11,7 @@
 calculate_likelihoods <- function(data, RAM_list, moderator_name){
 
   moderator_values <- sapply(RAM_list,function(list) list[["moderator_value"]])
+  if(sum(is.na(moderator_values))> 0) print("missing moderator values, please exclude")
 
   #  extract variables that are observed in right sequence
   observed_variables <- intersect(colnames(RAM_list[[1]][["expected_covariance"]]),
@@ -22,11 +23,28 @@ calculate_likelihoods <- function(data, RAM_list, moderator_name){
 
   # calculate loglikelihoods
   apply(data, 1, function(x){
-    index = which(moderator_values == x[moderator_name])
-    list <- RAM_list[[index]]
-    if(!list$moderator_value == x[moderator_name]) cat("selected wrong list")
-    mvtnorm::dmvnorm(x[observed_variables], mean = list_means[[index]], sigma = list_covs[[index]],
-            log = TRUE)
+    nonmissing_variables <- observed_variables[!is.na(x[observed_variables])]
+    index <- c(1:length(moderator_values))[moderator_values == as.numeric(x[moderator_name])]
+
+    if(length(nonmissing_variables) == 0) {
+      cat("observation with onlymissing values")
+      return(0)
+    } else if (length(nonmissing_variables) == 1) {
+      return(stats::dnorm(
+        x = as.numeric(x[nonmissing_variables]),
+        mean = list_means[[index]][nonmissing_variables],
+        sd = sqrt(list_covs[[index]][nonmissing_variables, nonmissing_variables]),
+        log = TRUE
+      ))
+    } else {
+      return(mvtnorm::dmvnorm(as.numeric(x[nonmissing_variables]),
+                              mean = list_means[[index]][nonmissing_variables],
+                              sigma = list_covs[[index]][nonmissing_variables, nonmissing_variables],
+                              log = TRUE))
+    }
+
+
+
   })
 
 }
