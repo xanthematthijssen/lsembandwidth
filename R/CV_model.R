@@ -38,14 +38,28 @@ CV_model <- function(list, moderator_name, moderator_grid, lavmodel, kernel, dig
   train_data <- list[[1]][["training"]]
   test_data <- list[[1]][["test"]]
 
-  parameters_train_data <- train_lsemmodel(
-    data = train_data,
-    lavmodel = lavmodel,
-    bandwidth = bandwidth,
-    moderator_name = moderator_name,
-    moderator_grid = moderator_grid,
-    ...
-  )$parameters
+  parameters_train_data <- tryCatch(
+    train_lsemmodel(
+      data = train_data,
+      lavmodel = lavmodel,
+      bandwidth = bandwidth,
+      moderator_name = moderator_name,
+      moderator_grid = moderator_grid,
+      ...
+    )$parameters,
+    error = function(error) {
+      if(!silent){print(error)}
+      return(NA)
+    }
+  )
+
+  if (is.na(parameters_train_data)) {
+    return(data.frame(
+      statistic = "CV",
+      bandwidth = bandwidth,
+      loglikelihood = NA
+    ))
+  }
 
   # round moderator values in test set to reduce calculations
   test_data[,moderator_name] <- round(test_data[,moderator_name], digits= digits)

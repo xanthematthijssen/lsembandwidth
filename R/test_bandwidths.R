@@ -57,18 +57,33 @@ test_bandwidths <- function(data,
     return("ended with error")
   }
 
+
+
   if (statistic == "AIC") {
     statistic_vector <-
-      bandwidthvector %>% purrr::map_dbl(function(x) {
-        train_lsemmodel(
-          data = data,
-          lavmodel = lavmodel,
-          bandwidth = x,
-          moderator_name = moderator_name,
-          moderator_grid = moderator_grid,
-          fit_measures = "aic",
-          kernel = kernel,
-        )$fitstats_joint$value
+      bandwidthvector %>%
+      purrr::map_dbl( function(x, ...){
+        tryCatch(
+          expr =
+            train_lsemmodel(
+              data = data,
+              lavmodel = lavmodel,
+              bandwidth = x,
+              moderator_name = moderator_name,
+              moderator_grid = moderator_grid,
+              fit_measures = "aic",
+              kernel = kernel,
+              ...
+            )$fitstats_joint$value
+          ,
+          error = function(cnd) {
+            print(cnd)
+            return(NA)},
+          warning=function(w){
+            print(w)
+            return(NA)
+          }
+        )
       },
       ...)
 
@@ -94,7 +109,8 @@ test_bandwidths <- function(data,
         ...
       )
 
-    if(!silent){print(df_loglikelihood)}
+    if(!silent | sum(is.na(df_loglikelihood$loglikelihood)) > 0 ){
+      print(df_loglikelihood)}
 
     # sum loglikelihoods of cross-validation sets to get statistic per bandwidth
     df_statistics <-
