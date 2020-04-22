@@ -456,7 +456,7 @@ plot(model_cv_int_imp_all_neg , parindex=1:8, ask = F)
 
 
 ```{r}
-B <- 10
+B <- 1000
 
   pmod_hild_int <-
     lsem.permutationTest(model_hild_int,
