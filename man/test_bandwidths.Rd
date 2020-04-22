@@ -16,6 +16,7 @@ test_bandwidths(
   digits = 6,
   maxbandwidthdistance = 2,
   silent = FALSE,
+  warningabort = FALSE,
   ...
 )
 }
@@ -45,10 +46,13 @@ moderator grid that a point in the dataset must be present}
 
 \item{silent}{if false print output in the meantime (false = default)}
 
+\item{warningabort}{whether to stop further calculations when lavaan model fitting produces
+a warning}
+
 \item{...}{further arguments to be passed to lavaan::sem or lavaan::lavaan.}
 }
 \value{
-dataframe with fit measures for every bandwidth
+dataframe with fit measures for every bandwidth (AIC or meanDeviance)
 }
 \description{
 Fits LSEM models with predifined bandwidths and measures fit

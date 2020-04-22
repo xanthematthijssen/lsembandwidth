@@ -11,6 +11,7 @@ CV_model(
   lavmodel,
   kernel,
   digits,
+  warningabort = FALSE,
   silent = FALSE,
   ...
 )
@@ -27,6 +28,9 @@ CV_model(
 \item{kernel}{kernel used}
 
 \item{digits}{number of digits test_data moderator is rounded to, can be lowerd to increase speed}
+
+\item{warningabort}{whether to stop further calculations when lavaan model fitting produces
+a warning}
 
 \item{silent}{if false print output in the meantime (false = default)}
 

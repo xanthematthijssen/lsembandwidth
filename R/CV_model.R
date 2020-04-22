@@ -7,6 +7,8 @@
 #' @param kernel kernel used
 #' @param digits number of digits test_data moderator is rounded to, can be lowerd to increase speed
 #' @param silent if false print output in the meantime (false = default)
+#' @param warningabort whether to stop further calculations when lavaan model fitting produces
+#' a warning
 #' @param ... further arguments to be passed to lavaan::sem or lavaan::lavaan
 #'
 #' @return dataframe of bandwidths and likelihoods
@@ -32,7 +34,16 @@
 #'        lavmodel = lavmodel, kernel ="gaussian")
 #'
 #'
-CV_model <- function(list, moderator_name, moderator_grid, lavmodel, kernel, digits, silent = FALSE, ...){
+CV_model <- function(list,
+                     moderator_name,
+                     moderator_grid,
+                     lavmodel,
+                     kernel,
+                     digits,
+                     warningabort = FALSE,
+                     silent = FALSE,
+                     ...) {
+
 
   bandwidth <- list[[2]]
   train_data <- list[[1]][["training"]]
@@ -50,14 +61,19 @@ CV_model <- function(list, moderator_name, moderator_grid, lavmodel, kernel, dig
     error = function(error) {
       if(!silent){print(error)}
       return(NA)
+    },
+    warning=function(w){
+      if(!silent) print(w)
+      if(warningabort) return(NA)
     }
   )
 
-  if (is.na(parameters_train_data)) {
+
+ if (!is.data.frame(parameters_train_data)) {
     return(data.frame(
-      statistic = "CV",
+      statistic = "Deviance",
       bandwidth = bandwidth,
-      loglikelihood = NA
+      deviance_test_data = NA
     ))
   }
 
@@ -83,11 +99,11 @@ CV_model <- function(list, moderator_name, moderator_grid, lavmodel, kernel, dig
   # calculate loglikelihoods for every observation in the test set
   loglikelihoods_test_data <- calculate_likelihoods(test_data, RAM_matrices_test_data, moderator_name)
 
-  loglikelihood_sum_test_data <- sum(loglikelihoods_test_data)
+  deviance_test_data <- -2*sum(loglikelihoods_test_data)
 
   return(data.frame(
-    statistic = "CV",
+    statistic = "Deviance",
     bandwidth = bandwidth,
-    loglikelihood = loglikelihood_sum_test_data
+    deviance_test_data = deviance_test_data
   ))
 }

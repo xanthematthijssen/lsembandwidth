@@ -14,9 +14,12 @@
 #' @param maxbandwidthdistance the amount of bandwidths from every point in the
 #' moderator grid that a point in the dataset must be present
 #' @param silent if false print output in the meantime (false = default)
+#' @param warningabort whether to stop further calculations when lavaan model fitting produces
+#' a warning
+#'
 #' @param ... further arguments to be passed to lavaan::sem or lavaan::lavaan.
 #'
-#' @return dataframe with fit measures for every bandwidth
+#' @return dataframe with fit measures for every bandwidth (AIC or meanDeviance)
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data
 #' @export
@@ -43,6 +46,7 @@ test_bandwidths <- function(data,
                             digits = 6,
                             maxbandwidthdistance = 2,
                             silent = FALSE,
+                            warningabort = FALSE,
                             ...) {
 
   # if all points in dataset too far from point in moderator grid return error
@@ -77,11 +81,11 @@ test_bandwidths <- function(data,
             )$fitstats_joint$value
           ,
           error = function(cnd) {
-            print(cnd)
+            if(!silent) print(cnd)
             return(NA)},
           warning=function(w){
-            print(w)
-            return(NA)
+            if(!silent) print(w)
+            if(warningabort) return(NA)
           }
         )
       },
@@ -106,17 +110,18 @@ test_bandwidths <- function(data,
         kernel = kernel,
         digits = digits,
         silent = silent,
+        warningabort = warningabort,
         ...
       )
 
-    if(!silent | sum(is.na(df_loglikelihood$loglikelihood)) > 0 ){
+    if(!silent | sum(is.na(df_loglikelihood$deviance_test_data)) > 0 ){
       print(df_loglikelihood)}
 
     # sum loglikelihoods of cross-validation sets to get statistic per bandwidth
     df_statistics <-
       df_loglikelihood %>%
       dplyr::group_by(.data$statistic, .data$bandwidth) %>%
-      dplyr::summarise(value = sum(.data$loglikelihood))
+      dplyr::summarise(value = mean(.data$deviance_test_data, na.rm = T))
   }
   return(df_statistics)
 }
