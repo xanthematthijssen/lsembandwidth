@@ -1,8 +1,11 @@
 16-04-2020 Henk Verslag	
 
--	Verder overzicht maken ook voor anntte en ook voor groter model 
+-	Verder overzicht maken ook voor anntte 
+- growth model 
+- opnieuw imputeren (wide + incusiejaar toevoegen + andere joincoutns) 
 
 
+- grote model 
 Done ->
 -	Trycatch doen 
 -	Midterm gaat Henk naar kijken 
@@ -22,7 +25,10 @@ unbiased estimate of the degrees of freedom for regression. As the penalty incre
 to zero, thus increasing the degrees of freedom, which for fit indices that include the degrees of freedom in
 the calculation, means that although FML may only get worse (increase), both the RMSEA and BIC can
 improve (decrease).
--	Is er standarisatie? intercepts bijan 0 -
+-	Is er standarisatie? intercepts bijan 0 - niet meer 
+- met andere index 
+
+
 Wensen
 - impuatie CV
 - sufficient statistics 
@@ -32,5 +38,3 @@ Discussie
 IMputatie niet erin 
 Nadenken is significantie nog belangrijk 
 
-Overleg henk"
-- permuatie test geimputeerde data 

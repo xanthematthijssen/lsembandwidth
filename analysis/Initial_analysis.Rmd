@@ -5,7 +5,7 @@ output:
   html_document:
     toc: true
     theme: united
-    toc_depth: 2
+    toc_depth: 4
 knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_file = paste0(substr(inputFile,1,nchar(inputFile)-4),Sys.Date(),'.html')) })
 ---
 
@@ -29,7 +29,7 @@ starting_time <- proc.time()
 
 # bepaling hoeveel er opnieuw wordt gerund 
 bandwidthrun <- FALSE
-permuatationrun <- TRUE 
+permuatationimputationrun <- FALSE 
 ```
 
 
@@ -114,10 +114,12 @@ fulldata <- filter(fulldata, !is.na(inclusiejaar))
 
 fulldata_base <- fulldata %>% filter(BEZNR ==1 & .imp != 0)
 fulldata1 <- fulldata %>% filter(BEZNR ==1 & .imp == 1)
-
+apply(fulldata_base ,2 , sd)
 
 fulldata_pos <- fulldata_base %>% subset(EACNUMM %in% EACNUMMs_ab_pos)
+
 fulldata_neg <- fulldata_base %>% subset(EACNUMM %in% EACNUMMs_ab_neg)
+summary(fulldata_neg)
 ```
 
 # Functions
@@ -136,14 +138,25 @@ lavmodel_int <- "
         GH_conv  ~ 1"
 
 lavmodel_int2 <- "
-        F=~ 1*ESR_conv+SJC_conv+TJC_conv+GH_conv
-        ESR_conv ~ 1
+        F=~ GH_conv + ESR_conv+SJC_conv+TJC_conv
+        GH_conv  ~ 1
+        SJC_conv ~ 1
+        TJC_conv ~ 1
+        ESR_conv ~ 1"
+
+lavmodel_int3 <- "
+        F=~ SJC_conv+TJC_conv + GH_conv + ESR_conv
         SJC_conv ~ 1
         TJC_conv ~ 1
         GH_conv  ~ 1
-        F ~ 1"
+        ESR_conv ~ 1"
 
-
+lavmodel_int4 <- "
+        F=~ TJC_conv +SJC_conv+ GH_conv + ESR_conv
+        TJC_conv ~ 1
+        SJC_conv ~ 1
+        GH_conv  ~ 1
+        ESR_conv ~ 1"
 
 moderator_grid <- unique(data$inclusiejaar) %>% as.numeric()
 
@@ -235,13 +248,6 @@ if(bandwidthrun) {
 
 ```
 
-
-```{r, eval = !bandwidthrun}
-load("../output/2020-04-22bw_int.RData")
-
-print(as.data.frame(bw_int))
-```
-
 ### imputation 
 Op een dataset want meerdere dataset is nog niet implemented 
 6 lijkte de beste 
@@ -268,12 +274,6 @@ if(bandwidthrun) {
 ```
 
 
-```{r, eval = !bandwidthrun}
-
-load("../output/2020-04-22bw_int_imp1.RData")
-
-print(as.data.frame(bw_int_imp1))
-```
 
 ### imputation pos 
 
@@ -299,14 +299,6 @@ if(bandwidthrun) {
 }
 ```
 
-
-```{r, eval = !bandwidthrun}
-
-#load("../output/2020-04-22bw_int_imp1_pos.RData")
-
-#print(as.data.frame(bw_int_imp1_pos))
-```
-
 ### imputation neg 
 8 is iets beter maar 9 convergeert 
 ```{r}
@@ -330,13 +322,6 @@ if(bandwidthrun) {
 }
 ```
 
-
-```{r, eval = !bandwidthrun}
-
-#load("../output/2020-04-22bw_int_imp1_neg.RData")
-
-#print(as.data.frame(bw_int_imp1_neg))
-```
 
 ## Lsem.estimate 
 
@@ -450,85 +435,341 @@ summary(model_cv_int_imp_all_neg)
 plot(model_cv_int_imp_all_neg , parindex=1:8, ask = F)
 ```
 
+#### model 2 
+```{r}
+model_cv_int_imp_all2 <- lsem.estimate(
+    fulldata %>% subset( .imp != 0 & BEZNR ==1),
+    moderator = "inclusiejaar",
+    moderator.grid = moderator_grid,
+    lavmodel = lavmodel_int2,
+    bw = 6,
+    sampling_weights = rep(1/30, nrow(fulldata_base))
+)
+summary(model_cv_int_imp_all2)
+plot(model_cv_int_imp_all2, parindex=1:8, ask = F)
 
+model_cv_int_imp_all_pos2 <- lsem.estimate(
+    fulldata_pos,
+    moderator = "inclusiejaar",
+    moderator.grid = moderator_grid,
+    lavmodel = lavmodel_int2,
+    bw = 10,
+    sampling_weights = rep(1/30, nrow(fulldata_pos))
+)
+
+summary(model_cv_int_imp_all_pos2)
+plot(model_cv_int_imp_all_pos2, parindex=1:8, ask = F)
+
+model_cv_int_imp_all_neg2 <- lsem.estimate(
+    fulldata_neg,
+    moderator = "inclusiejaar",
+    moderator.grid = moderator_grid,
+    lavmodel = lavmodel_int2,
+    bw = 9,
+    sampling_weights = rep(1/30, nrow(fulldata_neg))
+)
+
+summary(model_cv_int_imp_all_neg2)
+plot(model_cv_int_imp_all_neg2 , parindex=1:8, ask = F)
+```
+
+#### model 3
+
+```{r}
+model_cv_int_imp_all3 <- lsem.estimate(
+    fulldata %>% subset( .imp != 0 & BEZNR ==1),
+    moderator = "inclusiejaar",
+    moderator.grid = moderator_grid,
+    lavmodel = lavmodel_int3,
+    bw = 6,
+    sampling_weights = rep(1/30, nrow(fulldata_base))
+)
+summary(model_cv_int_imp_all3)
+plot(model_cv_int_imp_all3, parindex=1:8, ask = F)
+
+model_cv_int_imp_all_pos3 <- lsem.estimate(
+    fulldata_pos,
+    moderator = "inclusiejaar",
+    moderator.grid = moderator_grid,
+    lavmodel = lavmodel_int3,
+    bw = 10,
+    sampling_weights = rep(1/30, nrow(fulldata_pos))
+)
+
+summary(model_cv_int_imp_all_pos3)
+plot(model_cv_int_imp_all_pos3, parindex=1:8, ask = F)
+
+model_cv_int_imp_all_neg3 <- lsem.estimate(
+    fulldata_neg,
+    moderator = "inclusiejaar",
+    moderator.grid = moderator_grid,
+    lavmodel = lavmodel_int3,
+    bw = 9,
+    sampling_weights = rep(1/30, nrow(fulldata_neg))
+)
+
+summary(model_cv_int_imp_all_neg3)
+plot(model_cv_int_imp_all_neg3 , parindex=1:8, ask = F)
+```
+
+#### model 4
+
+```{r}
+model_cv_int_imp_all4 <- lsem.estimate(
+    fulldata %>% subset( .imp != 0 & BEZNR ==1),
+    moderator = "inclusiejaar",
+    moderator.grid = moderator_grid,
+    lavmodel = lavmodel_int4,
+    bw = 6,
+    sampling_weights = rep(1/30, nrow(fulldata_base))
+)
+summary(model_cv_int_imp_all4)
+plot(model_cv_int_imp_all4, parindex=1:8, ask = F)
+
+model_cv_int_imp_all_pos4 <- lsem.estimate(
+    fulldata_pos,
+    moderator = "inclusiejaar",
+    moderator.grid = moderator_grid,
+    lavmodel = lavmodel_int4,
+    bw = 10,
+    sampling_weights = rep(1/30, nrow(fulldata_pos))
+)
+
+summary(model_cv_int_imp_all_pos4)
+plot(model_cv_int_imp_all_pos4, parindex=1:8, ask = F)
+
+model_cv_int_imp_all_neg4 <- lsem.estimate(
+    fulldata_neg,
+    moderator = "inclusiejaar",
+    moderator.grid = moderator_grid,
+    lavmodel = lavmodel_int4,
+    bw = 9,
+    sampling_weights = rep(1/30, nrow(fulldata_neg))
+)
+
+summary(model_cv_int_imp_all_neg4)
+plot(model_cv_int_imp_all_neg4 , parindex=1:8, ask = F)
+```
 
 ## Permutation
 
 
 ```{r}
-B <- 10
+B <- 1
 
-  pmod_hild_int <-
-    lsem.permutationTest(model_hild_int,
-                         B = B)
-  
+pmod_cv_int <- lsem.permutationTest(model_hild_int,
+                                    B = B)
+
+
+
+pmod_cv_int$teststat %>% print(digits = 3)
+
+
+pmod_hild_int <-
+  lsem.permutationTest(model_hild_int,
+                       B = B)
+
+
+pmod_hild_int$teststat %>% print(digits = 3)
+
+
+
+if(B > 10) {
   save(pmod_hild_int,
        file = paste("../output/",
                     Sys.Date(),
                     B,
                     "pmod_hild_int.RData", sep = ""))
   
-  summary(pmod_hild_int)
-  
-  pmod_cv_int <- lsem.permutationTest(model_hild_int,
-                                      B = B)
-  
   save(pmod_cv_int,
        file = paste("../output/",
-                    Sys.Date(), 
+                    Sys.Date(),
                     B,
                     "pmod_cv_int.RData", sep = ""))
   
-  summary(pmod_cv_int)
   
-  # performed seperately
-  # pmod_cv_int_imp <- lsem.permutationTest(model_cv_int_imp_all,
-  #                                         B = B)
-  # 
-  # save(
-  #   pmod_cv_int_imp,
-  #   file = paste("../output/",
-  #                Sys.Date(),
-  #                B,
-  #                "pmod_cv_int_imp.RData", sep = "")
-  # )
-  # 
-  # summary(pmod_cv_int_imp)
-  
-  pmod_cv_int_imp_pos <- lsem.permutationTest(model_cv_int_imp_all_pos,
-                                          B =B)
-  
-  save(
-    pmod_cv_int_imp_pos,
-    file = paste("../output/",
-                 Sys.Date(),
-                 B,
-                 "pmod_cv_int_imp_pos.RData", sep = "")
-  )
-  
-  summary(pmod_cv_int_imp_pos)
-  
-  pmod_cv_int_imp_neg <- 
-    lsem.permutationTest(model_cv_int_imp_all_neg,
-                                          B = B)
-  
-  save(
-    pmod_cv_int_imp_neg,
-    file = paste("../output/",
-                 Sys.Date(),
-                 B,
-                 "pmod_cv_int_imp_neg.RData", sep = "")
-  )
-  
-  summary(pmod_cv_int_imp_neg)
-  
+}
 
 ```
 
-TODO als permatuation run is geweest hier invullen
+### permutation summary
+
+```{r}
+load("H:/lsembandwidth/output/2020-04-22pmod_cv_int_imp.RData")
+load("H:/lsembandwidth/output/2020-04-221000pmod_cv_int.RData")
+load("H:/lsembandwidth/output/2020-04-221000pmod_hild_int.RData")
+
+pmod_cv_int$teststat %>% print(digits = 3)
+plot(pmod_cv_int)
+
+pmod_hild_int$teststat %>% print(digits = 3)
+plot(pmod_hild_int)
+
+# deze p zijn waarschijnlijk te significant
+pmod_cv_int_imp$teststat %>% print(digits = 3)
+plot(pmod_cv_int_imp)
+
+
+
+```
+
+### summarise permuatiion Imp 
+
 ```{r}
 
+
+extract_pars <- function(location){
+  assign('pmod', get(load(paste("H:/lsembandwidth/output/perimp/",
+                                location,
+                                sep = "")))) 
+  pars <- pmod$teststat
+  pars$name <- location
+  return(pars)  
+}
+
+summarise_p <- function(par_dfs){
+  par_dfs %>% select(-name) %>% group_by(par) %>%
+    summarise_all(list(
+      min = min,
+      max = max,
+      mean = mean, 
+      median = median,
+      length = length
+    ))
+}
+
+summarise_models <- function(summ) {
+  summ %>% 
+    select(par, lin_slo_mean, lin_slo_p_mean,lin_slo_p_median,
+           SD_p_mean, SD_p_median, SD_p_length) %>%
+    mutate(lin_slo_mean = round(lin_slo_mean , digits = 2)) %>% 
+    as.data.frame %>% 
+    print()
+}
+
+list.files("../output/perimp/") %>% subset(str_detect(., "pos")) %>%
+  map_dfr(extract_pars) %>% summarise_p -> p_df_pos
+
+
+p_df_pos %>% summarise_models()
+
+
+list.files("../output/perimp/") %>% subset(str_detect(., "neg")) %>%
+  map_dfr(extract_pars) %>% summarise_p -> p_df_neg
+
+
+p_df_neg %>% summarise_models()
+
+
+list.files("../output/perimp/") %>% 
+  subset(!str_detect(., "neg") & !str_detect(.,"pos")) %>%
+  map_dfr(extract_pars) %>% summarise_p -> p_df
+
+
+p_df %>% summarise_models()
 ```
+
+
+
+## Permutation imputation
+```{r}
+if(permuatationimputationrun)
+{
+  B_imp <- 1000
+  for (i in 1:30) {
+    cat(i)
+    cat("a")
+    Sys.time() %>% print()
+    pmod_cv_int_imp <-
+      lsem.permutationTest(
+        model_cv_int_imp_all <- lsem.estimate(
+          fulldata %>% subset(.imp == i & BEZNR == 1),
+          moderator = "inclusiejaar",
+          moderator.grid = moderator_grid,
+          lavmodel = lavmodel_int,
+          bw = 6
+        ),
+        B = B_imp
+      )
+    
+    save(
+      pmod_cv_int_imp,
+      file = paste(
+        "../output/perimp/",
+        Sys.Date(),
+        "B",
+        B_imp,
+        "i",
+        i,
+        "pmod_cv_int_imp.RData",
+        sep = ""
+      )
+    )
+    
+    
+    cat(i)
+    cat("p")
+    Sys.time() %>% print()
+    pmod_cv_int_imp_pos <-
+      lsem.permutationTest(
+        lsem.estimate(
+          fulldata_pos %>% subset(.imp == i),
+          moderator = "inclusiejaar",
+          moderator.grid = moderator_grid,
+          lavmodel = lavmodel_int,
+          bw = 10
+        ),
+        B = B_imp
+      )
+    
+    save(
+      pmod_cv_int_imp_pos,
+      file = paste(
+        "../output/perimp/",
+        Sys.Date(),
+        "B",
+        B_imp,
+        "i",
+        i,
+        "pmod_cv_int_imp_pos.RData",
+        sep = ""
+      )
+    )
+    
+    cat(i)
+    cat("n")
+    Sys.time() %>% print()
+    pmod_cv_int_imp_neg <-
+      lsem.permutationTest(
+        lsem.estimate(
+          fulldata_neg %>% subset(.imp == i),
+          moderator = "inclusiejaar",
+          moderator.grid = moderator_grid,
+          lavmodel = lavmodel_int,
+          bw = 9
+        )
+        ,
+        B = B_imp
+      )
+    
+    save(
+      pmod_cv_int_imp_neg,
+      file = paste(
+        "../output/perimp/",
+        Sys.Date(),
+        "B",
+        B_imp,
+        "i",
+        i,
+        "pmod_cv_int_imp_neg.RData",
+        sep = ""
+      )
+    )
+    
+  }
+}
+```
+
 
 
 
@@ -615,6 +856,67 @@ load("../output/2020-04-16pmod1.RData")
 summary(pmod1)
 
 ```
+
+## 2020-4-23
+### permuation op volledige imputatie -> mag denk ik niet 
+```{r, eval = F}
+
+
+
+pmod_cv_int_imp <- lsem.permutationTest(model_cv_int_imp_all,
+                                        B = B)
+
+
+pmod_cv_int_imp$teststat %>% print(digits = 3)
+
+pmod_cv_int_imp_pos <-
+  lsem.permutationTest(model_cv_int_imp_all_pos,
+                       B = B)
+
+
+
+pmod_cv_int_imp_pos$teststat %>% print(digits = 3)
+
+pmod_cv_int_imp_neg <-
+  lsem.permutationTest(model_cv_int_imp_all_neg,
+                       B = B)
+
+
+
+pmod_cv_int_imp_neg$teststat %>% print(digits = 3)
+
+save(
+    pmod_cv_int_imp_neg,
+    file = paste(
+      "../output/",
+      Sys.Date(),
+      B,
+      "pmod_cv_int_imp_neg.RData",
+      sep = ""
+    )
+  )
+  save(
+    pmod_cv_int_imp_pos,
+    file = paste(
+      "../output/",
+      Sys.Date(),
+      B,
+      "pmod_cv_int_imp_pos.RData",
+      sep = ""
+    )
+  )
+  save(
+    pmod_cv_int_imp,
+    file = paste("../output/",
+                 Sys.Date(),
+                 B,
+                 "pmod_cv_int_imp.RData", sep = "")
+  )
+  
+
+```
+
+
 
 
 
