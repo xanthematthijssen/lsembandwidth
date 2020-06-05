@@ -3,6 +3,7 @@
 export(CV_model)
 export(calculate_parameters_permoderator)
 export(create_crossvaldata)
+export(simulate_data)
 export(test_bandwidths)
 export(train_lsemmodel)
 importFrom(magrittr,"%>%")

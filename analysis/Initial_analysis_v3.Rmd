@@ -318,6 +318,16 @@ apply(fulldata1 ,2 , sd)
 #save.image("../output/workspace/29-04-2020general.RData")
 ```
 
+## factor model
+```{r}
+data_base %>%
+  mutate( inclusiejaar5 = cut(inclusiejaar,5)) %>%
+  select(inclusiejaar5, TJC_conv, SJC_conv, ESR_conv, GH_conv) %>% 
+  group_split(inclusiejaar5)%>%
+  lapply( function(x) round(cor(x[,2:5], use = "pairwise.complete.obs"), digits = 2))
+  
+  
+```
 
 ## bandwidths 
 
