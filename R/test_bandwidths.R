@@ -61,7 +61,8 @@ test_bandwidths <- function(data,
     return("ended with error")
   }
 
-
+  print(unique(data$i))
+  print(Sys.time())
 
   if (statistic == "AIC") {
     statistic_vector <-
@@ -121,7 +122,9 @@ test_bandwidths <- function(data,
     df_statistics <-
       df_loglikelihood %>%
       dplyr::group_by(.data$statistic, .data$bandwidth) %>%
-      dplyr::summarise(value = mean(.data$deviance_test_data, na.rm = T))
+      dplyr::summarise(value = mean(.data$deviance_test_data, na.rm = T),
+                       na = sum(is.na(.data$statistic)))
   }
+
   return(df_statistics)
 }

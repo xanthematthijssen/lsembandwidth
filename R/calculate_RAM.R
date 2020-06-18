@@ -13,6 +13,7 @@
 
 
 calculate_RAM_matrices <- function(parameters_onemoderator) {
+
   ordered_variablenames <- unique(c(parameters_onemoderator$lhs, parameters_onemoderator$rhs))
   ordered_variablenames <- ordered_variablenames[ordered_variablenames != ""]
 

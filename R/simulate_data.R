@@ -28,9 +28,9 @@ simulate_data <- function(type, effect, N, seed, path = NA, i= NA){
     means <- sample(c(-1,1), size = N, replace = T)
     df$moderator <- stats::rnorm(N, mean = means, sd = 0.5)
   } else if(type == "increasing"){
-    df$moderator <- extraDistr::rtriang(N, a = -1, b = 1, c = 1)
+    df$moderator<- extraDistr::rtriang(N, a = -2, b = 2, c = -2)
   } else if ( type == "unbalanced mixture"){
-    means <- sample(c(-1,1), size = N, replace = T, prob =c(0.2, 0.8))
+    means <- sample(c(-1,1), size = N, replace = T, prob =c(0.8, 0.2))
     df$moderator <- stats::rnorm(N, mean = means, sd = 0.5)
   } else {
     print("No valid function given")

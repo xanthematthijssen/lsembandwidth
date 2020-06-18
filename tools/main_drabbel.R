@@ -2,7 +2,7 @@ library(devtools)
 library(testthat)
 library(sirt)
 sessionInfo()
-.rs.restartR()
+#.rs.restartR()
 rm(list = ls())
 
 load_all()
@@ -47,8 +47,8 @@ test_bandwidths(data = simplefactordata, lavmodel = lavmodel,
                 moderator.grid = moderator.grid)
 
 
-test_bandwidths(data = simplefactordata, lavmodel = lavmodel,
-                bandwidthvector = c(2,3), moderator_name = "moderator",
+pars <- test_bandwidths(data = simplefactordata, lavmodel = lavmodel,
+                bandwidthvector = c(0.05, 0.1, 0.2, 0.5,3), moderator_name = "moderator",
                 moderator_grid = moderator_grid, statistic  = "CV", K=3,
                 digits = 2)
 
@@ -71,6 +71,13 @@ parameters_train_data <- train_lsemmodel(
   moderator_grid = moderator_grid)$parameters
 
 unique_moderators_test_data <- unique(test_data[,moderator_name])
+
+parameters_test_data <- calculate_parameters_permoderator2(
+  moderators = unique_moderators_test_data,
+  kernel = "gaussian",
+  bandwidth = bandwidth,
+  parameters = parameters_train_data
+)
 
 parameters_test_data <- calculate_parameters_permoderator(
   moderators = unique_moderators_test_data,

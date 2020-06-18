@@ -36,44 +36,41 @@ calculate_parameters_permoderator <- function(moderators_test_data,
   # and moderator values in the moderator grid (also known as focal points)
   # moderators are moderator values given to the function
   # focal_points are moderator values in the moderator grid
-  cross_df_focalpoints_moderators <-
-    purrr::cross_df(list(
-      moderators_test_data = moderators_test_data,
-      focal_points = unique(parameters_train_data$moderator)
-    ))
 
-  # calculate weigths for these combinations
-  cross_df_focalpoints_moderators$weights <-
-    lsem_kernel_weights(cross_df_focalpoints_moderators$moderators_test_data,
-                        cross_df_focalpoints_moderators$focal_points,
-                        bw = bandwidth,
-                        kernel = kernel)
+  parameters_train_data$par <- as.character(parameters_train_data$par)
+  parameters_train_data_list <- dplyr::group_split(parameters_train_data, par)
 
-  # merge in parameter values
-  cross_df_focalpoints_moderators <-
-    merge(
-      cross_df_focalpoints_moderators,
-      parameters_train_data,
-      by.x = "focal_points",
-      by.y = "moderator",
-      all.x = T,
-      all.y = F,
-      sort = F
+  parnames <- sapply(parameters_train_data_list, function(x) x$par[1])
+
+  names(parameters_train_data_list) <- parnames
+
+  intrapolation_funs <- purrr::map(
+    parameters_train_data_list, ~
+    stats::splinefun(
+      x = .$moderator,
+      y = .$est,
+      method = "natural"
     )
+  )
+  if(is.data.frame(moderators_test_data)){moderators_test_data <- moderators_test_data$moderator}
+  names(intrapolation_funs) <- parnames
+  parameter_df <- purrr::map_df(intrapolation_funs, exec, moderators_test_data)
+  parameter_df$moderators_test_data <- moderators_test_data
 
-  # calculate weighted mean of every parameter for every value of the moderator given to the function
-  parameters_permoderator <-
-    cross_df_focalpoints_moderators %>%
-    dplyr::group_by(.data$moderators_test_data, .data$par) %>%
-    dplyr::mutate(weighted_estimate = sum(.data$weights * .data$est) / sum(.data$weights)) %>%
-    dplyr::slice(1) %>%
-    dplyr::select(.data$moderators_test_data,
-                  .data$par,
-                  .data$lhs,
-                  .data$op,
-                  .data$rhs,
-                  .data$weighted_estimate)
+  parameters_test_data <- tidyr::pivot_longer(parameter_df,
+                                              -.data$moderators_test_data,
+                                              names_to = "par",
+                                              values_to = "weighted_estimate")
 
+  parameters_train_tomerge <-
+    parameters_train_data %>%
+    subset(moderator == min(moderator)) %>%
+    select(par, lhs, op, rhs)
+
+
+  parameters_permoderator <- merge(parameters_test_data,
+                                 parameters_train_tomerge ,
+                                 by = "par", all = T)
 
   if(!silent) {print(parameters_permoderator)}
 

@@ -61,10 +61,6 @@ CV_model <- function(list,
     error = function(error) {
       if(!silent){print(error)}
       return(NA)
-    },
-    warning=function(w){
-      if(!silent) print(w)
-      if(warningabort) return(NA)
     }
   )
 

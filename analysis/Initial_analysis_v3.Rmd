@@ -362,14 +362,15 @@ calculate_bandwidth(n = nrow(fulldata %>% subset(BEZNR == 9 & .imp == 1)),
 
 ### load bandwidths
 ```{r}
-load("H:/lsembandwidth/output/bw/2020-04-29bw_int_imp1_5j.RData")
-print(bw_int_imp1_5j %>% as.data.frame())
-
-load("H:/lsembandwidth/output/bw/2020-04-29bw_int_imp1_1j.RData")
-print(bw_int_imp1_1j %>% as.data.frame())
-load("H:/lsembandwidth/output/bw/2020-04-29bw_int_imp1.RData")
-
-print(bw_int_imp1 %>% as.data.frame())
+test_bandwidths(
+  data = data_base,
+  lavmodel = lavmodel_int,
+  bandwidthvector = c(3, 5),
+  moderator_name = "inclusiejaar",
+  moderator_grid = moderator_grid,
+  K = 10,
+  statistic = "CV"
+)
 ```
 
 
