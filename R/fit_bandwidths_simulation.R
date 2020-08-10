@@ -29,8 +29,9 @@ fit_bandwidths_simulation <- function(data, bw_vector, moderator_name, moderator
     )
 
   }
-  names(model_list) <- 1:7
+  names(model_list) <- 1:length(bw_vector)
   model_df <- do.call(rbind, model_list)
+  print(nrow(model_df))
   model_df$bw <-rownames(model_df)
   return(model_df)
 }

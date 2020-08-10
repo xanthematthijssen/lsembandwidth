@@ -39,15 +39,15 @@ starting_time <- proc.time()
 ## Read  data 
 
 ```{r}
-load("I:/Promovendi_Annette/Xanthe/4. Analyse hele EAC/EAC-nieuwe-start/0. Data/Produced/Beforeimp 2019-01-16.RData")
+load("I:/Pi helm/Promovendi/Xanthe/4. Analyse hele EAC/EAC-nieuwe-start/0. Data/Produced/Beforeimp 2019-01-16.RData")
 
-load("I:/Promovendi_Annette/Xanthe/4. Analyse hele EAC/EAC-nieuwe-start/0. Data/Produced/Naimp 2019-01-16.RData")
+load("I:/Pi helm/Promovendi/Xanthe/4. Analyse hele EAC/EAC-nieuwe-start/0. Data/Produced/Naimp 2019-01-16.RData")
 
 fulldata <- mice::complete(data_imp, include = T, action = 'long')
 ```
 ### ab_count
 ```{r}
-load("I:/Promovendi_Annette/Xanthe/4. Analyse hele EAC/EAC-nieuwe-start/0. Data/Produced/ 2019-11-01 AB_info.RData")
+load("I:/Pi helm/Promovendi/Xanthe/4. Analyse hele EAC/EAC-nieuwe-start/0. Data/Produced/ 2019-11-01 AB_info.RData")
 
 ```
 
@@ -200,9 +200,9 @@ lavmodel_int4 <- "
         ESR_conv ~ 1
         F ~ 1"
 
-moderator_grid <- unique(data$inclusiejaar) %>% as.numeric()
+moderator_grid <- 1994:2016
 
-bandwidths <- c(2,5,10,15)
+bandwidths <- c(1,2,3,4,5,6,7)
 
 # complete patienten op baseline
 EACNUMMs_comp_base <- data_base  %>%
@@ -346,11 +346,16 @@ hildebrandt_bw <- calculate_bandwidth(n = nrow(data_base),
 
 hildebrandt_bw
 
-bandwidths <- c(bandwidths, hildebrandt_bw)
+bandwidths_base <- c(bandwidths, hildebrandt_bw)
+
+
+# die van fulldata zijn hetzelfde 
 
 calculate_bandwidth(n = nrow(fulldata %>% subset(BEZNR == 4 & .imp == 1)),
                     sd = sd(data_base$inclusiejaar), 
                     h = c(1.1,2,3))
+
+
 
 calculate_bandwidth(n = nrow(fulldata %>% subset(BEZNR == 9 & .imp == 1)),
                     sd = sd(data_base$inclusiejaar), 
@@ -362,17 +367,8 @@ calculate_bandwidth(n = nrow(fulldata %>% subset(BEZNR == 9 & .imp == 1)),
 
 ### load bandwidths
 ```{r}
-test_bandwidths(
-  data = data_base,
-  lavmodel = lavmodel_int,
-  bandwidthvector = c(3, 5),
-  moderator_name = "inclusiejaar",
-  moderator_grid = moderator_grid,
-  K = 10,
-  statistic = "CV"
-)
-```
 
+```
 
 
 

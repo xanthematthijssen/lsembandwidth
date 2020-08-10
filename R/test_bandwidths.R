@@ -115,7 +115,7 @@ test_bandwidths <- function(data,
         ...
       )
 
-    if(!silent | sum(is.na(df_loglikelihood$deviance_test_data)) > 0 ){
+    if(!silent | sum(is.na(df_loglikelihood$deviance_test_data)) > 0 | TRUE){
       print(df_loglikelihood)}
 
     # sum loglikelihoods of cross-validation sets to get statistic per bandwidth
@@ -123,8 +123,9 @@ test_bandwidths <- function(data,
       df_loglikelihood %>%
       dplyr::group_by(.data$statistic, .data$bandwidth) %>%
       dplyr::summarise(value = mean(.data$deviance_test_data, na.rm = T),
-                       na = sum(is.na(.data$statistic)))
+                       na = sum(is.na(.data$statistic)),
+                       inf = sum(is.infinite(.data$statistic), na.rm = T))
   }
 
-  return(df_statistics)
+  return(df_loglikelihood)
 }

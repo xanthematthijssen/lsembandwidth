@@ -32,6 +32,15 @@ simulation_frame_norm <- data.frame(i = 1:(B*6),
                                     seed = 121212 + 1:(B*6))
 
 
+simulation_frame_norm <- data.frame(i = 1:(B*6),
+                                    type = rep("unif",B*6),
+                                    effect = c(rep("equal",B*3),
+                                               rep("ascending", B*3)),
+                                    N = c(300,500,1000),
+                                    seed = 121212 + 1:(B*6))
+
+
+
 simulation_fit <- function(data){
   n <- nrow(data)
   sd <- sd(data$moderator)
@@ -66,9 +75,7 @@ results <- fread("I:/Promovendi_Annette/Xanthe/data scriptie/2020-05-28models_no
 
 results <- merge(results, simulation_frame_norm, by = "i")
 
-results$bw <- gsub("\\.", "x", results$bw)
 
-results$bw <- as.numeric(str_split(results$bw, "x", simplify = TRUE)[,1])
 
 
 bws <- rep(rep(c(1,2,3,4,5,6,7), each = 126), 6000)
