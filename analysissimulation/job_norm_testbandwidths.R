@@ -21,14 +21,14 @@ lavmodel <- "
 
 moderator_grid <- c(-2, -1.5, -1.0, - 0.5, 0, 0.5, 1, 1.5, 2)
 
-bw_factor <- c(4.0 ,5.0)
+bw_factor <-  c(1.1, 1.5, 2.0, 2.5, 3.0 )
 moderator <-  "moderator"
 
-numbers <- c(1:500,1001:1500, 2001:2500,3001:3500,4001:4500,5001:5500)
+numbers <- c(2501:3000)
 
 #numbers <- c(1:2)
 ##### analysis ####
-data <- fread("I:/Pi helm/Promovendi/Xanthe/data scriptie/2020-06-05simulation_norm.csv")
+data <- fread("I:/Pi helm/Promovendi/Xanthe/data scriptie/2020-08-10simulation_norm.csv")
 
 data_list <- data %>%
   dplyr::group_split(i)
@@ -45,5 +45,5 @@ models <- map2_df(data_list, bw_list, test_bandwidths,
                   statistic = "CV", K = 5, silent = T)
 
 
-fwrite(models, file = "I:/Pi helm/Promovendi/Xanthe/data scriptie/2020-07-03CVs_norm_small3.csv")
+fwrite(models, file = "I:/Pi helm/Promovendi/Xanthe/data scriptie/2020-08-20CVs_norm_six.csv")
 #fwrite(models, file = "I:/Promovendi_Annette/Xanthe/data scriptie/2020-06-18lol.csv")

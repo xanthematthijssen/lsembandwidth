@@ -20,7 +20,7 @@ lavmodel <- "
 
 moderator_grid <- c(-2, -1.5, -1.0, - 0.5, 0, 0.5, 1, 1.5, 2)
 
-bw_factor <- c(1.1 ,2.0,3.0)
+bw_factor <- c(1.5 ,  2.5, 3.5, 4.0)
 moderator <-  "moderator"
 
 numbers <- 1:3000
@@ -41,4 +41,4 @@ models <- map2_df(data_list, bw_list, fit_bandwidths_simulation,
                   moderator_grid=moderator_grid,
                   lavmodel=lavmodel, .id = "i")
 
-fwrite(models, file = "I:/Pi helm/Promovendi/Xanthe/data scriptie/2020-08-10models_mix.csv")
+fwrite(models, file = "I:/Pi helm/Promovendi/Xanthe/data scriptie/2020-08-10models_mix2.csv")
