@@ -61,7 +61,6 @@ test_bandwidths <- function(data,
     return("ended with error")
   }
 
-  print(unique(data$i))
   print(Sys.time())
 
   if (statistic == "AIC") {
@@ -92,7 +91,7 @@ test_bandwidths <- function(data,
       },
       ...)
 
-    df_statistics <- data.frame(statistic = statistic,
+    df_loglikelihood <- data.frame(statistic = statistic,
                                 bandwidth = bandwidthvector,
                                 value = statistic_vector)
   }

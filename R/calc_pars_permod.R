@@ -38,7 +38,7 @@ calculate_parameters_permoderator <- function(moderators_test_data,
   # focal_points are moderator values in the moderator grid
 
   parameters_train_data$par <- as.character(parameters_train_data$par)
-  parameters_train_data_list <- dplyr::group_split(parameters_train_data, par)
+  parameters_train_data_list <- dplyr::group_split(parameters_train_data, .data$par)
 
   parnames <- sapply(parameters_train_data_list, function(x) x$par[1])
 
@@ -54,7 +54,7 @@ calculate_parameters_permoderator <- function(moderators_test_data,
   )
   if(is.data.frame(moderators_test_data)){moderators_test_data <- moderators_test_data$moderator}
   names(intrapolation_funs) <- parnames
-  parameter_df <- purrr::map_df(intrapolation_funs, exec, moderators_test_data)
+  parameter_df <- purrr::map_df(intrapolation_funs, purrr::exec, moderators_test_data)
   parameter_df$moderators_test_data <- moderators_test_data
 
   parameters_test_data <- tidyr::pivot_longer(parameter_df,
@@ -64,8 +64,8 @@ calculate_parameters_permoderator <- function(moderators_test_data,
 
   parameters_train_tomerge <-
     parameters_train_data %>%
-    subset(moderator == min(moderator)) %>%
-    select(par, lhs, op, rhs)
+    dplyr::filter(.data$moderator == min(.data$moderator)) %>%
+    dplyr::select(.data$par, .data$lhs,.data$op, .data$rhs)
 
 
   parameters_permoderator <- merge(parameters_test_data,

@@ -67,16 +67,16 @@ simulate_data <- function(type, effect, N, seed, path = NA, i= NA){
 
 
   #### indicators ####
-  df$indicator1 <- stats::rnorm(N, mean = df$true_latent*(loading1*df$moderator) +
+  df$indicator1 <- stats::rnorm(N, mean = df$true_latent*(loading1) +
                            intercept1
                          ,sd = 0.6)
-  df$indicator2 <- stats::rnorm(N, mean = df$true_latent*(loading2*df$moderator) +
+  df$indicator2 <- stats::rnorm(N, mean = df$true_latent*(loading2) +
                            intercept2
                          ,sd = 0.6)
-  df$indicator3 <- stats::rnorm(N, mean = df$true_latent*(loading3*df$moderator) +
+  df$indicator3 <- stats::rnorm(N, mean = df$true_latent*(loading3) +
                            intercept3
                          ,sd = 0.6)
-  df$indicator4 <- stats::rnorm(N, mean = df$true_latent*(loading4*df$moderator) +
+  df$indicator4 <- stats::rnorm(N, mean = df$true_latent*(loading4) +
                            intercept4
                          ,sd = 0.6)
 
